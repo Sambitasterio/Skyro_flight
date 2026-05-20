@@ -17,6 +17,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   const params = await searchParams;
   const redirectTo = sanitizeRedirectPath(params.next);
+  const bookingsGate = redirectTo.startsWith("/bookings");
 
   if (user) {
     redirect(redirectTo);
@@ -29,9 +30,19 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <Link href="/" className="text-2xl font-bold text-foreground">
             Sky<span className="text-primary">ro</span>
           </Link>
+          {bookingsGate && (
+            <p
+              className="mt-4 rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-sm font-medium text-primary"
+              role="status"
+            >
+              Sign in to view and manage your bookings
+            </p>
+          )}
           <h1 className="mt-4 text-xl font-semibold">Sign in to your account</h1>
           <p className="mt-1 text-sm text-muted">
-            Continue your booking or manage trips
+            {bookingsGate
+              ? "My Bookings is only available after you log in"
+              : "Continue your booking or manage trips"}
           </p>
         </div>
 
