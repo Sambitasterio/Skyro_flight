@@ -1,34 +1,32 @@
-import Link from "next/link";
-
-import { AuthStatusBar } from "@/components/auth/AuthStatusBar";
+import { FlightSearchCard } from "@/components/search/FlightSearchCard";
 
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-24">
-      <p className="rounded-full bg-primary/10 px-4 py-1 text-sm font-medium text-primary">
-        Phase 2 — Auth wired
-      </p>
-      <h1 className="text-4xl font-bold tracking-tight">
-        Sky<span className="text-primary">ro</span>
-      </h1>
-      <p className="max-w-md text-center text-muted">
-        Login, signup, session refresh, and route protection are live. Landing
-        page ships in Phase 3.
-      </p>
-
-      <AuthStatusBar />
-
-      <div className="flex flex-wrap justify-center gap-3 text-sm">
-        <Link href="/auth/login" className="text-primary underline">
-          /auth/login
-        </Link>
-        <Link href="/auth/signup" className="text-primary underline">
-          /auth/signup
-        </Link>
-        <Link href="/bookings" className="text-primary underline">
-          /bookings (protected)
-        </Link>
-      </div>
+    <main className="flex flex-1 flex-col">
+      {/* Placeholder hero shell until 3.3 destination photos */}
+      <section className="relative flex min-h-[min(720px,85vh)] flex-col items-center justify-center bg-slate-900 px-4 pb-16 pt-8 sm:px-6">
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/70 to-slate-900"
+          aria-hidden
+        />
+        <div className="relative z-10 mx-auto w-full max-w-5xl text-center">
+          <p className="mb-3 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-medium text-white/90 backdrop-blur-sm">
+            500+ destinations worldwide
+          </p>
+          <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
+            Millions of flights.{" "}
+            <span className="bg-gradient-to-r from-indigo-300 to-violet-300 bg-clip-text text-transparent">
+              One simple search.
+            </span>
+          </h1>
+          <p className="mx-auto mt-3 max-w-lg text-sm text-white/75 sm:text-base">
+            Compare fares across India — no login required to search.
+          </p>
+          <div className="mt-8 text-left">
+            <FlightSearchCard />
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

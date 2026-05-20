@@ -59,6 +59,7 @@ SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
 | Mobile UX | Bottom sheets · sticky CTAs | Match reference apps in `design/references/` |
 | Dark mode | Supported via CSS variables | Toggle in nav (Phase 3+) |
 | Images | User JPGs from `design/destinations/` | Copied to `/public/hero/` at Phase 3 |
+| **Landing UX (user lock-in)** | **Skyscanner-first** + rotating destination photos | Dark hero · bold white headline · unified white search strip · minimal nav over hero; EaseMyTrip/ixigo only for small details (trip tabs, card dividers) — **not** light-blue hero clone |
 
 ---
 
@@ -353,11 +354,12 @@ Before **Phase 3**, the agent must say:
 | `easemytrip1.png`, `easemytrip2.png` | [EaseMyTrip](https://www.easemytrip.com) | Light blue hero · One Way / Round Trip / Multicity tabs · airport codes under city names · orange CTA · special-fare chips · exclusive offers carousel below |
 | `ixigo1.png`, `ixigo2.png` | [ixigo](https://www.ixigo.com) | Clean white card search on light bg · service tabs (Flights active) · special fare pills · “Do more” icon row · offers section with filter chips |
 
-### Design direction (locked from your inspirations)
+### Design direction (locked — user preference)
 
-Blend the best of all three — **Skyro keeps its indigo theme**, not competitor colors:
+**Primary reference: Skyscanner** (dark hero, search-first, destination imagery). **Skyro indigo** (`#4F46E5`), not competitor blue/orange.
 
-- **Layout:** Skyscanner-style hero + search prominence; EaseMyTrip-style trip tabs + divided fields; ixigo-style clean white search card
+- **Hero:** Full-viewport rotating **destination JPGs** (`design/destinations/` → `/public/hero/`) with dark gradient overlay (Skyscanner-style legibility)
+- **Layout:** Skyscanner-style hero + search prominence; borrow EaseMyTrip trip tabs + divided fields only inside the white search card
 - **Nav:** Icon + label tabs (Flights · My Bookings) — not plain text links
 - **Search card:** From / swap / To / departure / return / pax+class in one bordered container; gradient indigo Search button
 - **Below hero:** Stats bar + trending destination grid (use your photos) + optional offers row inspired by EaseMyTrip/ixigo

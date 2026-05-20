@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { LogoutButton } from "@/components/auth/LogoutButton";
+import { HERO_TRANSPARENT_NAV } from "@/lib/layout/nav";
 import { useUserStore } from "@/store/useUserStore";
 
 const NAV_ITEMS = [
@@ -39,7 +40,10 @@ export function Navbar() {
     };
   }, [mobileOpen]);
 
-  const solid = scrolled || !isHeroRoute;
+  // Transparent nav only over dark hero (Phase 3.3+). White placeholder home needs solid nav.
+  const transparentNav =
+    HERO_TRANSPARENT_NAV && isHeroRoute && !scrolled;
+  const solid = !transparentNav;
 
   return (
     <>
