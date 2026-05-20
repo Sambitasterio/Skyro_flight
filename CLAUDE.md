@@ -452,8 +452,8 @@ Test: [how to verify in browser/terminal, if applicable]
 |---|---|---|---|
 | **Pre-project** | Accounts + assets | ✅ Done | Supabase + Node + Git · credentials saved · design assets in `design/` |
 | **Phase 0** | Project Scaffolding | ✅ Done | Paste Supabase keys into `.env.local` · run `npm run dev` to verify |
-| **Phase 1** | Database Setup | ⬜ Not Started | Supabase SQL Editor → run migrations `001–005` → run `seed.sql` → spot-check tables in Table Editor |
-| **Phase 2** | Auth Setup | ⬜ Not Started | Supabase → Authentication → Providers → **enable Email** · confirm email confirmations on/off per your preference |
+| **Phase 1** | Database Setup | ✅ Done | Migrations + seed verified · 8 flights · 2016 seats · test user `xyz123@gmail.com` |
+| **Phase 2** | Auth Setup | ⬜ Not Started | Supabase → Authentication → Providers → **enable Email** · disable confirm email for local dev (optional) |
 | **Phase 3** | Landing Page | ⬜ Not Started | ✅ Assets in `design/` · reply *"Phase 3 proceed"* when ready to build |
 | **Phase 4** | Flight Search Results | ⬜ Not Started | Optional: note any filter/sort preferences from reference sites · smoke-test search in browser after agent ships page |
 | **Phase 5** | Seat Map + Realtime | ⬜ Not Started | Supabase → Database → Replication → add **`seats`** to `supabase_realtime` publication |
