@@ -20,7 +20,7 @@ Skyro is a **responsive flight booking Progressive Web App** that lets users sea
 6. **Confirmation** (`/booking/[pnr]`) — PNR + itinerary
 7. **My Bookings** (`/bookings`) — tabs, reschedule, cancel
 
-**Architecture reference:** open `architecture.html` in a browser for system diagrams (user flow, schema, state, data flow).
+**Architecture reference:** open [`docs/architecture.html`](./docs/architecture.html) in a browser for system diagrams (user flow, schema, state, data flow).
 
 ---
 
@@ -56,9 +56,9 @@ SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
 | Seat conflicts | **RPC + `SELECT FOR UPDATE`** | Atomic reserve; Realtime for UI sync |
 | Cancel rule | **2 hours before departure** | DB trigger blocks late cancels |
 | Sensitive data | **No passport in localStorage** | `partialize` excludes `passengerForm` |
-| Mobile UX | Bottom sheets · sticky CTAs | Match reference apps in `/INSPIRATIONS/` |
+| Mobile UX | Bottom sheets · sticky CTAs | Match reference apps in `design/references/` |
 | Dark mode | Supported via CSS variables | Toggle in nav (Phase 3+) |
-| Images | User JPGs from `/INSPIRATIONS/` | Copied to `/public/hero/` at Phase 3 |
+| Images | User JPGs from `design/destinations/` | Copied to `/public/hero/` at Phase 3 |
 
 ---
 
@@ -299,8 +299,8 @@ Complete these **once**, before Phase 0 begins. The agent will not scaffold the 
 | 6 | **Create a GitHub account** | [github.com](https://github.com) — needed for final submission | ✅ Yes (Phase 10) |
 | 7 | **Create a Vercel account** | [vercel.com](https://vercel.com) — sign in with GitHub | ✅ Yes (Phase 10) |
 | 8 | **Pick a test user email + password** | e.g. `test@skyro.dev` / `Test1234!` — you will use this in seed data + README | ✅ Yes |
-| 9 | **Gather design references (frontend)** | Save to `/INSPIRATIONS/` — see **Design Assets** below | ✅ Done |
-| 10 | **Gather destination images (frontend)** | Save to `/INSPIRATIONS/` — agent copies to `/public/hero/` at Phase 3 | ✅ Done |
+| 9 | **Gather design references (frontend)** | Save to `design/references/` — see **Design Assets** below | ✅ Done |
+| 10 | **Gather destination images (frontend)** | Save to `design/destinations/` — agent copies to `/public/hero/` at Phase 3 | ✅ Done |
 
 **When ready:** Reply with *"Pre-project checklist done"* (and paste Supabase URL + keys into `.env.local` when Phase 0 asks for them — never paste service role key in chat).
 
@@ -314,21 +314,21 @@ Complete these **once**, before Phase 0 begins. The agent will not scaffold the 
 
 ### Status: ✅ Assets provided by you
 
-All inspiration files live in **`/INSPIRATIONS/`** (project root). See **Design Assets — INSPIRATIONS/** below for the full inventory and design direction.
+All inspiration files live in **`design/`** (see subfolders below). See **Design Assets — design/** for the full inventory and design direction.
 
 At Phase 3 start, the agent will:
-1. Confirm assets in `/INSPIRATIONS/` are still present
-2. Copy destination JPGs → `/public/hero/` (keep PNG references in `/INSPIRATIONS/` only)
+1. Confirm assets in `design/references/` and `design/destinations/` are still present
+2. Copy destination JPGs → `/public/hero/` (keep PNG references in `design/references/` only)
 3. Ask you to reply *"Phase 3 proceed"* before writing landing page code
 
 ### What you provide (reference)
 
-1. **Frontpage / UI references** — screenshots in `/INSPIRATIONS/`:
+1. **Frontpage / UI references** — screenshots in `design/references/`:
    - `skyscanner1.png`, `skyscanner2.png`
    - `easemytrip1.png`, `easemytrip2.png`
    - `ixigo1.png`, `ixigo2.png`
 
-2. **Destination location images** — Unsplash JPGs in `/INSPIRATIONS/`:
+2. **Destination location images** — Unsplash JPGs in `design/destinations/`:
    - 6 landscape photos for hero rotation + trending cards
    - Agent copies these to `/public/hero/` during Phase 3
 
@@ -336,16 +336,16 @@ At Phase 3 start, the agent will:
 
 Before **Phase 3**, the agent must say:
 
-> *"Frontend gate: Your assets are in `/INSPIRATIONS/`. Confirm you want to proceed with the landing page (Skyro indigo theme + these references). Reply **Phase 3 proceed** to start."*
+> *"Frontend gate: Your assets are in `design/`. Confirm you want to proceed with the landing page (Skyro indigo theme + these references). Reply **Phase 3 proceed** to start."*
 
 ---
 
-## Design Assets — INSPIRATIONS/
+## Design Assets — design/
 
-**Folder:** `/INSPIRATIONS/`  
+**Folders:** `design/references/` (PNG) · `design/destinations/` (JPG)  
 **Status:** ✅ Provided by user — ready for Phase 3
 
-### Frontpage reference screenshots
+### Frontpage reference screenshots (`design/references/`)
 
 | File | Source site | Takeaways for Skyro |
 |---|---|---|
@@ -363,7 +363,7 @@ Blend the best of all three — **Skyro keeps its indigo theme**, not competitor
 - **Below hero:** Stats bar + trending destination grid (use your photos) + optional offers row inspired by EaseMyTrip/ixigo
 - **Do not clone** competitor branding — use **Skyro** wordmark, `#4F46E5` primary, white + indigo palette
 
-### Destination photos (hero + trending)
+### Destination photos (`design/destinations/` — hero + trending)
 
 | File | Subject (approx.) | Use |
 |---|---|---|
@@ -374,9 +374,9 @@ Blend the best of all three — **Skyro keeps its indigo theme**, not competitor
 | `johny-goerend-MYXMx2zr1g8-unsplash.jpg` | Travel / destination | Hero rotation |
 | `sebastian-staines-O5rFo-cJu94-unsplash.jpg` | Travel / destination | Hero rotation |
 
-**Phase 3 task (agent):** Copy all 6 JPGs to `/public/hero/` with short aliases (e.g. `santorini.jpg`, `london.jpg`, …) and wire into `HeroBackground` + trending cards. Map cities/routes in UI to match seed data (DEL, BOM, GOA, BLR, etc.) even if photo location differs — label cards by route, not photo EXIF.
+**Phase 3 task (agent):** Copy all 6 JPGs from `design/destinations/` to `/public/hero/` with short aliases (e.g. `santorini.jpg`, `london.jpg`, …) and wire into `HeroBackground` + trending cards. Map cities/routes in UI to match seed data (DEL, BOM, GOA, BLR, etc.) even if photo location differs — label cards by route, not photo EXIF.
 
-**Note:** PNG screenshots stay in `/INSPIRATIONS/` for dev reference only — do not use as hero backgrounds.
+**Note:** PNG screenshots stay in `design/references/` for dev reference only — do not use as hero backgrounds.
 
 ---
 ---
@@ -450,11 +450,11 @@ Test: [how to verify in browser/terminal, if applicable]
 
 | Phase | Description | Status | Manual Steps Required (You) |
 |---|---|---|---|
-| **Pre-project** | Accounts + assets | ✅ Done | Supabase + Node + Git · credentials saved · design assets in `/INSPIRATIONS/` |
+| **Pre-project** | Accounts + assets | ✅ Done | Supabase + Node + Git · credentials saved · design assets in `design/` |
 | **Phase 0** | Project Scaffolding | ✅ Done | Paste Supabase keys into `.env.local` · run `npm run dev` to verify |
 | **Phase 1** | Database Setup | ⬜ Not Started | Supabase SQL Editor → run migrations `001–005` → run `seed.sql` → spot-check tables in Table Editor |
 | **Phase 2** | Auth Setup | ⬜ Not Started | Supabase → Authentication → Providers → **enable Email** · confirm email confirmations on/off per your preference |
-| **Phase 3** | Landing Page | ⬜ Not Started | ✅ Assets in `/INSPIRATIONS/` · reply *"Phase 3 proceed"* when ready to build |
+| **Phase 3** | Landing Page | ⬜ Not Started | ✅ Assets in `design/` · reply *"Phase 3 proceed"* when ready to build |
 | **Phase 4** | Flight Search Results | ⬜ Not Started | Optional: note any filter/sort preferences from reference sites · smoke-test search in browser after agent ships page |
 | **Phase 5** | Seat Map + Realtime | ⬜ Not Started | Supabase → Database → Replication → add **`seats`** to `supabase_realtime` publication |
 | **Phase 6** | Booking Flow | ⬜ Not Started | End-to-end test booking with test user · verify PNR appears on confirmation page |
@@ -577,10 +577,10 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 
 > **⏸️ YOUR TURN — FRONTEND GATE (required before any Phase 3 work)**
 >
-> **✅ You already provided assets in `/INSPIRATIONS/`.** Agent verifies folder, copies JPGs to `/public/hero/`, then builds using Skyscanner + EaseMyTrip + ixigo layout cues (Skyro indigo theme).
+> **✅ You already provided assets in `design/`.** Agent verifies folders, copies JPGs from `design/destinations/` to `/public/hero/`, then builds using Skyscanner + EaseMyTrip + ixigo layout cues (Skyro indigo theme).
 >
-> 1. **Frontpage references** — `skyscanner*.png`, `easemytrip*.png`, `ixigo*.png` in `/INSPIRATIONS/`
-> 2. **Destination images** — 6 Unsplash JPGs in `/INSPIRATIONS/` → copied to `/public/hero/` at build time
+> 1. **Frontpage references** — `skyscanner*.png`, `easemytrip*.png`, `ixigo*.png` in `design/references/`
+> 2. **Destination images** — 6 Unsplash JPGs in `design/destinations/` → copied to `/public/hero/` at build time
 > 3. Optional: note any layout preference (e.g. *"more like Skyscanner dark hero"* vs *"more like ixigo light card"*)
 >
 > **Reply *"Phase 3 proceed"* when you want the landing page built.**
@@ -590,7 +590,7 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 - [ ] `globals.css` — CSS variables: primary `#4F46E5`, accent `#7C3AED`, surfaces, borders
 - [ ] `src/components/layout/Navbar.tsx` — Sky**ro** wordmark · Flights / My Bookings tabs · auth avatar
 - [ ] `src/components/layout/Footer.tsx` — minimal links
-- [ ] Mobile: bottom nav or hamburger per `/INSPIRATIONS/` references
+- [ ] Mobile: bottom nav or hamburger per `design/references/` screenshots
 
 ### 3.2 — Search Card Component
 - [ ] `src/components/search/FlightSearchCard.tsx` — trip type tabs (One Way / Round Trip)
@@ -602,7 +602,7 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 - [ ] Persist search params via `useFlightStore` on submit
 
 ### 3.3 — Hero Background (rotating images)
-- [ ] Copy JPGs from `/INSPIRATIONS/` → `/public/hero/` (see Design Assets inventory)
+- [ ] Copy JPGs from `design/destinations/` → `/public/hero/` (see Design Assets inventory)
 - [ ] `src/components/landing/HeroBackground.tsx` — crossfade every 5s · Ken Burns optional
 - [ ] Dark gradient overlay for text contrast
 - [ ] `prefers-reduced-motion` — show static first image
@@ -881,7 +881,7 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 - [ ] Setup: clone · `npm install` · `.env.example` · migrations · `npm run dev`
 - [ ] Test credentials (email/password from seed)
 - [ ] Feature checklist matching evaluation criteria
-- [ ] Optional: link to `architecture.html`
+- [ ] Optional: link to `docs/architecture.html`
 
 ### Deploy Steps
 - [ ] Push to GitHub `main`
@@ -934,7 +934,7 @@ Implement in this order — stop at the tier you need:
 |---|---|---|
 | **P0 — Must ship** | 0 → 1 → 2 → 3.1–3.4 → 4.1–4.4 → 5.1–5.4 → 6.1–6.4 → 7.1–7.4 | End-to-end book + PNR + list bookings + cancel |
 | **P1 — Strong submission** | + 3.5–3.7 · 4.5–4.6 · 5.5 · 8 | Polish UI · Zustand persist rules · Realtime toast |
-| **P2 — Excellent** | + reschedule flow · architecture.html in README · Phase 10 deploy | Full feature parity |
+| **P2 — Excellent** | + reschedule flow · `docs/architecture.html` in README · Phase 10 deploy | Full feature parity |
 | **P3 — Bonus** | Phase 9 PWA | Lighthouse + installable |
 
 **Skip first if desperate:** Phase 9 (PWA) · 3.6 offers section · reschedule (keep cancel)
