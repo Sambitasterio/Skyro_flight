@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skyro — Architecture Diagram</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0A0F1E;
+      color: #F1F5F9;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      padding: 40px 32px 80px;
+    }
+
+    /* ── HEADER ── */
+    .page-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .page-header .badge {
+      display: inline-block;
+      background: rgba(79,70,229,0.2);
+      border: 1px solid rgba(129,140,248,0.4);
+      color: #818CF8;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+
+    .page-header h1 {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #F1F5F9, #818CF8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .page-header p {
+      color: #64748B;
+      font-size: 15px;
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: 1.5px solid #1E293B;
+      background: transparent;
+      color: #64748B;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: #4F46E5;
+      border-color: #4F46E5;
+      color: #fff;
+    }
+
+    .tab:hover:not(.active) { border-color: #4F46E5; color: #818CF8; }
+
+    /* ── DIAGRAM SECTIONS ── */
+    .diagram { display: none; }
+    .diagram.active { display: block; }
+
+    /* ── SHARED STYLES ── */
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 16px;
+      padding-left: 4px;
+    }
+
+    /* NODE BOXES */
+    .node {
+      border-radius: 12px;
+      border: 1.5px solid;
+      padding: 12px 16px;
+      position: relative;
+    }
+
+    .node-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .node-sub {
+      font-size: 11px;
+      color: #94A3B8;
+      line-height: 1.4;
+    }
+
+    .node-icon {
+      font-size: 20px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    /* COLORS */
+    .indigo  { border-color: #4F46E5; background: rgba(79,70,229,0.08); }
+    .violet  { border-color: #7C3AED; background: rgba(124,58,237,0.08); }
+    .cyan    { border-color: #06B6D4; background: rgba(6,182,212,0.08); }
+    .green   { border-color: #10B981; background: rgba(16,185,129,0.08); }
+    .amber   { border-color: #F59E0B; background: rgba(245,158,11,0.08); }
+    .rose    { border-color: #F43F5E; background: rgba(244,63,94,0.08); }
+    .slate   { border-color: #475569; background: rgba(71,85,105,0.08); }
+    .sky     { border-color: #0EA5E9; background: rgba(14,165,233,0.08); }
+
+    .node-title.indigo  { color: #818CF8; }
+    .node-title.violet  { color: #A78BFA; }
+    .node-title.cyan    { color: #22D3EE; }
+    .node-title.green   { color: #34D399; }
+    .node-title.amber   { color: #FCD34D; }
+    .node-title.rose    { color: #FB7185; }
+    .node-title.sky     { color: #38BDF8; }
+
+    /* ── ARROWS ── */
+    .arrow-down {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      margin: 0 auto;
+      width: fit-content;
+    }
+
+    .arrow-line {
+      width: 2px;
+      height: 28px;
+      background: linear-gradient(180deg, #334155, #4F46E5);
+    }
+
+    .arrow-head {
+      width: 0; height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid #4F46E5;
+    }
+
+    .arrow-label {
+      font-size: 10px;
+      color: #475569;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: #0A0F1E;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid #1E293B;
+      margin: 4px 0;
+    }
+
+    /* ── DIAGRAM 1: SYSTEM ARCHITECTURE ── */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .layer {
+      background: #0D1424;
+      border: 1.5px solid #1E293B;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 4px;
+      position: relative;
+    }
+
+    .layer-label {
+      position: absolute;
+      top: -11px;
+      left: 20px;
+      background: #0A0F1E;
+      padding: 0 10px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .layer-nodes {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .layer-nodes .node {
+      flex: 1;
+      min-width: 130px;
+      max-width: 180px;
+      text-align: center;
+    }
+
+    .layer-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 6px 0;
+      color: #334155;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+
+    .h-line { flex: 1; height: 1px; background: #1E293B; max-width: 80px; }
+
+    /* ── DIAGRAM 2: USER FLOW ── */
+    .flow-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .flow-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .flow-node {
+      flex: 1;
+      border-radius: 12px;
+      border: 1.5px solid #1E293B;
+      background: #0D1424;
+      padding: 14px 16px;
+      text-align: center;
+      cursor: default;
+      transition: border-color 0.2s;
+      min-width: 0;
+    }
+
+    .flow-node:hover { border-color: #4F46E5; }
+
+    .flow-node .fn-icon { font-size: 22px; margin-bottom: 5px; }
+    .flow-node .fn-title { font-size: 13px; font-weight: 700; color: #F1F5F9; margin-bottom: 3px; }
+    .flow-node .fn-sub { font-size: 11px; color: #64748B; }
+    .flow-node .fn-route { font-size: 10px; font-weight: 700; color: #4F46E5; font-family: monospace; margin-top: 5px; }
+
+    .flow-arrow {
+      color: #334155;
+      font-size: 18px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .flow-gate {
+      background: rgba(244,63,94,0.08);
+      border: 1.5px dashed #F43F5E;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #FB7185;
+      text-align: center;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .flow-section-gap {
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .flow-divider {
+      width: 100%;
+      height: 1px;
+      background: #1E293B;
+      position: relative;
+    }
+
+    .flow-divider span {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: #0A0F1E;
+      padding: 0 12px;
+      font-size: 10px;
+      color: #475569;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── DIAGRAM 3: DATA FLOW ── */
+    .data-cols {
+      display: grid;
+      grid-template-columns: 1fr 80px 1fr 80px 1fr;
+      gap: 0;
+      max-width: 1000px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    .data-col { display: flex; flex-direction: column; gap: 12px; }
+
+    .data-arrow-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 60px;
+      gap: 60px;
+    }
+
+    .h-arrow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+    }
+
+    .h-arrow-line {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, #1E293B, #4F46E5);
+    }
+
+    .h-arrow-head {
+      width: 0; height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 8px solid #4F46E5;
+    }
+
+    .h-arrow-label {
+      writing-mode: horizontal-tb;
+      font-size: 9px;
+      color: #475569;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-align: center;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .data-node {
+      background: #0D1424;
+      border: 1.5px solid #1E293B;
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .data-node .dn-title {
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .data-node .dn-item {
+      font-size: 11px;
+      color: #64748B;
+      font-family: monospace;
+      line-height: 1.6;
+    }
+
+    .data-node .dn-item span {
+      color: #94A3B8;
+    }
+
+    /* ── DIAGRAM 4: DB SCHEMA ── */
+    .schema-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .schema-table {
+      background: #0D1424;
+      border: 1.5px solid #1E293B;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .schema-table.highlighted { border-color: #4F46E5; }
+
+    .st-header {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .st-header.indigo-bg  { background: rgba(79,70,229,0.2);  color: #818CF8; }
+    .st-header.cyan-bg    { background: rgba(6,182,212,0.2);   color: #22D3EE; }
+    .st-header.green-bg   { background: rgba(16,185,129,0.2);  color: #34D399; }
+    .st-header.amber-bg   { background: rgba(245,158,11,0.2);  color: #FCD34D; }
+    .st-header.violet-bg  { background: rgba(124,58,237,0.2);  color: #A78BFA; }
+
+    .st-body { padding: 12px 16px; }
+
+    .st-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      border-bottom: 1px solid #1E293B;
+      font-size: 11px;
+    }
+
+    .st-row:last-child { border-bottom: none; }
+
+    .st-col { color: #94A3B8; font-family: monospace; }
+    .st-col.pk { color: #FCD34D; }
+    .st-col.fk { color: #22D3EE; }
+    .st-col.special { color: #34D399; }
+    .st-type { color: #475569; font-size: 10px; }
+
+    .st-badge {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.06em;
+    }
+
+    .badge-pk { background: rgba(252,211,77,0.15); color: #FCD34D; }
+    .badge-fk { background: rgba(34,211,238,0.15); color: #22D3EE; }
+
+    .rls-banner {
+      margin: 20px auto 0;
+      max-width: 1000px;
+      background: rgba(16,185,129,0.08);
+      border: 1.5px solid #10B981;
+      border-radius: 10px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: #34D399;
+    }
+
+    /* ── DIAGRAM 5: STATE MANAGEMENT ── */
+    .state-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .store-card {
+      background: #0D1424;
+      border: 1.5px solid #1E293B;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .store-card.highlighted { border-color: #4F46E5; }
+
+    .sc-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid #1E293B;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sc-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    .sc-title { font-size: 14px; font-weight: 700; }
+    .sc-subtitle { font-size: 11px; color: #64748B; }
+
+    .sc-body { padding: 16px 18px; }
+
+    .sc-section { margin-bottom: 14px; }
+    .sc-section:last-child { margin-bottom: 0; }
+
+    .sc-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 8px;
+    }
+
+    .sc-field {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid #0F172A;
+      font-size: 12px;
+    }
+
+    .sc-field:last-child { border-bottom: none; }
+
+    .sc-field .name { color: #94A3B8; font-family: monospace; }
+    .sc-field .type { color: #475569; font-size: 10px; }
+
+    .persist-tag {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .p-yes   { background: rgba(16,185,129,0.15); color: #34D399; }
+    .p-no    { background: rgba(244,63,94,0.15);  color: #FB7185; }
+    .p-part  { background: rgba(245,158,11,0.15); color: #FCD34D; }
+
+    .persist-legend {
+      max-width: 900px;
+      margin: 16px auto 0;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .pl-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #64748B;
+    }
+
+    /* ── REALTIME BOX ── */
+    .realtime-card {
+      max-width: 900px;
+      margin: 20px auto 0;
+      background: rgba(6,182,212,0.05);
+      border: 1.5px solid #06B6D4;
+      border-radius: 14px;
+      padding: 20px 24px;
+    }
+
+    .rt-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #22D3EE;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rt-flow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .rt-step {
+      background: rgba(6,182,212,0.08);
+      border: 1px solid rgba(6,182,212,0.3);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #94A3B8;
+      text-align: center;
+    }
+
+    .rt-step strong { display: block; color: #22D3EE; font-size: 11px; margin-bottom: 2px; font-weight: 700; }
+
+    .rt-arr { color: #0E7490; font-size: 16px; }
+
+    /* LEGEND */
+    .legend {
+      max-width: 860px;
+      margin: 40px auto 0;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding-top: 24px;
+      border-top: 1px solid #1E293B;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #64748B;
+    }
+
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <div class="badge">System Design</div>
+    <h1>Skyro — Architecture & Workflow</h1>
+    <p>Flight Management PWA · Next.js 14 · Supabase · Zustand · Tailwind</p>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showDiagram('system',this)">System Architecture</button>
+    <button class="tab" onclick="showDiagram('userflow',this)">User Flow</button>
+    <button class="tab" onclick="showDiagram('dataflow',this)">Data Flow</button>
+    <button class="tab" onclick="showDiagram('schema',this)">DB Schema</button>
+    <button class="tab" onclick="showDiagram('state',this)">State Management</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- DIAGRAM 1: SYSTEM ARCHITECTURE                             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="diagram active" id="d-system">
+    <div class="arch-grid">
+
+      <!-- Browser Layer -->
+      <div class="layer">
+        <div class="layer-label" style="color:#818CF8;">CLIENT — Browser / PWA</div>
+        <div class="layer-nodes">
+          <div class="node indigo" style="text-align:center;">
+            <span class="node-icon">🖥️</span>
+            <div class="node-title indigo">Next.js App Router</div>
+            <div class="node-sub">React Server Components + Client Components</div>
+          </div>
+          <div class="node violet" style="text-align:center;">
+            <span class="node-icon">🗃️</span>
+            <div class="node-title violet">Zustand Store</div>
+            <div class="node-sub">useFlightStore · useUserStore<br/>persist + partialize</div>
+          </div>
+          <div class="node cyan" style="text-align:center;">
+            <span class="node-icon">📡</span>
+            <div class="node-title cyan">Supabase Realtime</div>
+            <div class="node-sub">WebSocket channel<br/>seats table subscription</div>
+          </div>
+          <div class="node slate" style="text-align:center;">
+            <span class="node-icon">⚙️</span>
+            <div class="node-title" style="color:#94A3B8;">Service Worker</div>
+            <div class="node-sub">next-pwa · StaleWhileRevalidate<br/>offline fallback + cache</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow down -->
+      <div class="layer-arrow">
+        <div class="h-line"></div>
+        HTTPS / REST + WebSocket
+        <div class="h-line"></div>
+      </div>
+
+      <!-- Next.js Server Layer -->
+      <div class="layer">
+        <div class="layer-label" style="color:#22D3EE;">SERVER — Next.js (Vercel Edge)</div>
+        <div class="layer-nodes">
+          <div class="node cyan" style="text-align:center;">
+            <span class="node-icon">🛣️</span>
+            <div class="node-title cyan">App Router</div>
+            <div class="node-sub">Server Components<br/>Route Handlers<br/>Middleware (session)</div>
+          </div>
+          <div class="node indigo" style="text-align:center;">
+            <span class="node-icon">🔒</span>
+            <div class="node-title indigo">Auth Middleware</div>
+            <div class="node-sub">Session refresh<br/>Route protection<br/>Cookie management</div>
+          </div>
+          <div class="node green" style="text-align:center;">
+            <span class="node-icon">🔌</span>
+            <div class="node-title green">Supabase SSR Client</div>
+            <div class="node-sub">createServerClient<br/>Service role (server only)<br/>Anon key (public)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow down -->
+      <div class="layer-arrow">
+        <div class="h-line"></div>
+        Supabase JS SDK / PostgREST
+        <div class="h-line"></div>
+      </div>
+
+      <!-- Supabase Layer -->
+      <div class="layer">
+        <div class="layer-label" style="color:#34D399;">BACKEND — Supabase (Managed)</div>
+        <div class="layer-nodes">
+          <div class="node green" style="text-align:center;">
+            <span class="node-icon">🐘</span>
+            <div class="node-title green">PostgreSQL</div>
+            <div class="node-sub">5 tables · RLS on all<br/>Triggers + RPCs</div>
+          </div>
+          <div class="node amber" style="text-align:center;">
+            <span class="node-icon">👤</span>
+            <div class="node-title amber">Supabase Auth</div>
+            <div class="node-sub">Email + password<br/>JWT session tokens<br/>auth.users table</div>
+          </div>
+          <div class="node cyan" style="text-align:center;">
+            <span class="node-icon">⚡</span>
+            <div class="node-title cyan">Realtime Engine</div>
+            <div class="node-sub">postgres_changes<br/>seats table broadcast<br/>WebSocket pub/sub</div>
+          </div>
+          <div class="node violet" style="text-align:center;">
+            <span class="node-icon">🔧</span>
+            <div class="node-title violet">RPC Functions</div>
+            <div class="node-sub">reserve_seat()<br/>cancel_booking()<br/>FOR UPDATE lock</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow down -->
+      <div class="layer-arrow">
+        <div class="h-line"></div>
+        Vercel CI/CD
+        <div class="h-line"></div>
+      </div>
+
+      <!-- Deploy Layer -->
+      <div class="layer">
+        <div class="layer-label" style="color:#FCD34D;">DEPLOY</div>
+        <div class="layer-nodes">
+          <div class="node amber" style="text-align:center;">
+            <span class="node-icon">▲</span>
+            <div class="node-title amber">Vercel</div>
+            <div class="node-sub">Edge Network · Auto CI/CD<br/>Env vars management</div>
+          </div>
+          <div class="node slate" style="text-align:center;">
+            <span class="node-icon">🐙</span>
+            <div class="node-title" style="color:#94A3B8;">GitHub</div>
+            <div class="node-sub">Source control<br/>Migration SQL files<br/>Seed scripts</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- DIAGRAM 2: USER FLOW                                       -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="diagram" id="d-userflow">
+    <div class="flow-wrapper">
+
+      <div class="section-title" style="text-align:center;margin-bottom:24px;">— Public (No Auth Required) —</div>
+
+      <!-- Row 1: Landing -->
+      <div class="flow-row">
+        <div class="flow-node" style="border-color:#4F46E5;">
+          <div class="fn-icon">🏠</div>
+          <div class="fn-title">Landing Page</div>
+          <div class="fn-sub">Hero search · popular routes</div>
+          <div class="fn-route">/</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <div class="fn-icon">🔍</div>
+          <div class="fn-title">Search Results</div>
+          <div class="fn-sub">Filter · sort · class select</div>
+          <div class="fn-route">/flights</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-gate">🔒 AUTH GATE<br/>Login modal fires</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node" style="border-color:#06B6D4;">
+          <div class="fn-icon">💺</div>
+          <div class="fn-title">Seat Selection</div>
+          <div class="fn-sub">Visual map · Realtime sync</div>
+          <div class="fn-route">/flights/[id]/seats</div>
+        </div>
+      </div>
+
+      <div style="height:16px;display:flex;align-items:center;justify-content:flex-end;padding-right:calc(25% - 20px);">
+        <div style="width:2px;height:16px;background:linear-gradient(180deg,#1E293B,#4F46E5);margin-left:auto;margin-right:calc(25% + 20px);"></div>
+      </div>
+
+      <!-- Row 2: Booking -->
+      <div class="flow-row" style="flex-direction:row-reverse;">
+        <div class="flow-node" style="border-color:#10B981;">
+          <div class="fn-icon">✅</div>
+          <div class="fn-title">Confirmation</div>
+          <div class="fn-sub">PNR · seat · flight details</div>
+          <div class="fn-route">/booking/[pnr]</div>
+        </div>
+        <div class="flow-arrow">←</div>
+        <div class="flow-node">
+          <div class="fn-icon">📋</div>
+          <div class="fn-title">Passenger Details</div>
+          <div class="fn-sub">Name · passport · nationality</div>
+          <div class="fn-route">/book/[flightId]</div>
+        </div>
+        <div class="flow-arrow">←</div>
+        <div style="width:80px;height:2px;background:linear-gradient(90deg,#4F46E5,#1E293B);align-self:center;"></div>
+        <div style="width:100px;"></div>
+      </div>
+
+      <div style="height:24px;"></div>
+
+      <!-- Divider -->
+      <div class="flow-divider"><span>Protected Routes — Auth Required</span></div>
+      <div style="height:24px;"></div>
+
+      <!-- Row 3: My Bookings -->
+      <div class="flow-row">
+        <div class="flow-node" style="border-color:#10B981;">
+          <div class="fn-icon">✅</div>
+          <div class="fn-title">Confirmation Page</div>
+          <div class="fn-sub">→ "View My Bookings" CTA</div>
+          <div class="fn-route">/booking/[pnr]</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <div class="fn-icon">📂</div>
+          <div class="fn-title">My Bookings</div>
+          <div class="fn-sub">All · Upcoming · Past · Cancelled</div>
+          <div class="fn-route">/bookings</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div style="display:flex;flex-direction:column;gap:8px;flex:1;">
+          <div class="flow-node" style="border-color:#F59E0B;">
+            <div class="fn-icon">🔄</div>
+            <div class="fn-title">Reschedule</div>
+            <div class="fn-sub">Pick alt flight · pay fee delta</div>
+          </div>
+          <div class="flow-node" style="border-color:#F43F5E;">
+            <div class="fn-icon">❌</div>
+            <div class="fn-title">Cancel</div>
+            <div class="fn-sub">Confirm dialog · 2hr rule check</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step indicator -->
+      <div style="max-width:600px;margin:32px auto 0;">
+        <div class="section-title" style="text-align:center;margin-bottom:16px;">Booking Progress Steps</div>
+        <div style="display:flex;align-items:center;gap:0;">
+          <div style="text-align:center;flex:1;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#4F46E5;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;">1</div>
+            <div style="font-size:11px;color:#94A3B8;font-weight:600;">Search</div>
+          </div>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,#4F46E5,#7C3AED);margin-bottom:22px;"></div>
+          <div style="text-align:center;flex:1;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#7C3AED;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;">2</div>
+            <div style="font-size:11px;color:#94A3B8;font-weight:600;">Seat</div>
+          </div>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,#7C3AED,#06B6D4);margin-bottom:22px;"></div>
+          <div style="text-align:center;flex:1;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#06B6D4;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;">3</div>
+            <div style="font-size:11px;color:#94A3B8;font-weight:600;">Passenger</div>
+          </div>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,#06B6D4,#10B981);margin-bottom:22px;"></div>
+          <div style="text-align:center;flex:1;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#10B981;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;">4</div>
+            <div style="font-size:11px;color:#94A3B8;font-weight:600;">Confirm</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- DIAGRAM 3: DATA FLOW                                       -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="diagram" id="d-dataflow">
+    <div style="max-width:1000px;margin:0 auto;">
+
+      <div class="section-title" style="text-align:center;margin-bottom:24px;">— How data moves through the app —</div>
+
+      <!-- Booking flow data -->
+      <div style="display:grid;grid-template-columns:1fr 60px 1fr 60px 1fr;gap:0;align-items:start;margin-bottom:32px;">
+
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="section-title">Browser (Client)</div>
+          <div class="data-node">
+            <div class="dn-title" style="color:#818CF8;">useFlightStore</div>
+            <div class="dn-item"><span>searchQuery</span> → persisted</div>
+            <div class="dn-item"><span>selectedFlight</span> → persisted</div>
+            <div class="dn-item"><span>selectedSeat</span> → persisted</div>
+            <div class="dn-item"><span>passengerForm</span> → NOT saved</div>
+          </div>
+          <div class="data-node">
+            <div class="dn-title" style="color:#A78BFA;">useUserStore</div>
+            <div class="dn-item"><span>session.token</span> → persisted</div>
+            <div class="dn-item"><span>cachedBookings</span> → not persisted</div>
+          </div>
+          <div class="data-node" style="border-color:#06B6D4;">
+            <div class="dn-title" style="color:#22D3EE;">Realtime Channel</div>
+            <div class="dn-item"><span>seats</span> table changes</div>
+            <div class="dn-item">→ update local seat state</div>
+            <div class="dn-item">→ show "seat taken" toast</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:70px;gap:55px;">
+          <div>
+            <div class="h-arrow"><div class="h-arrow-line"></div><div class="h-arrow-head"></div></div>
+            <div class="h-arrow-label">API call</div>
+          </div>
+          <div>
+            <div class="h-arrow"><div class="h-arrow-line"></div><div class="h-arrow-head"></div></div>
+            <div class="h-arrow-label">JWT token</div>
+          </div>
+          <div>
+            <div class="h-arrow" style="flex-direction:row-reverse;">
+              <div class="h-arrow-line" style="background:linear-gradient(270deg,#1E293B,#06B6D4);"></div>
+              <div class="h-arrow-head" style="border-left:none;border-right:8px solid #06B6D4;"></div>
+            </div>
+            <div class="h-arrow-label">WebSocket</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="section-title">Next.js Server</div>
+          <div class="data-node">
+            <div class="dn-title" style="color:#22D3EE;">Server Components</div>
+            <div class="dn-item">Read cookies → get session</div>
+            <div class="dn-item">createServerClient()</div>
+            <div class="dn-item">Fetch flights/seats/bookings</div>
+            <div class="dn-item">Pass as props to client</div>
+          </div>
+          <div class="data-node">
+            <div class="dn-title" style="color:#22D3EE;">Middleware</div>
+            <div class="dn-item">Refresh session token</div>
+            <div class="dn-item">Redirect unauth → /auth</div>
+            <div class="dn-item">Update cookies</div>
+          </div>
+          <div class="data-node">
+            <div class="dn-title" style="color:#22D3EE;">Route Handlers</div>
+            <div class="dn-item">POST /api/reserve-seat</div>
+            <div class="dn-item">POST /api/cancel-booking</div>
+            <div class="dn-item">Calls Supabase RPC</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:70px;gap:55px;">
+          <div>
+            <div class="h-arrow"><div class="h-arrow-line"></div><div class="h-arrow-head"></div></div>
+            <div class="h-arrow-label">PostgREST</div>
+          </div>
+          <div>
+            <div class="h-arrow"><div class="h-arrow-line"></div><div class="h-arrow-head"></div></div>
+            <div class="h-arrow-label">RPC call</div>
+          </div>
+          <div>
+            <div class="h-arrow" style="flex-direction:row-reverse;">
+              <div class="h-arrow-line" style="background:linear-gradient(270deg,#1E293B,#06B6D4);"></div>
+              <div class="h-arrow-head" style="border-left:none;border-right:8px solid #06B6D4;"></div>
+            </div>
+            <div class="h-arrow-label">broadcast</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="section-title">Supabase</div>
+          <div class="data-node">
+            <div class="dn-title" style="color:#34D399;">PostgreSQL</div>
+            <div class="dn-item">flights · seats · bookings</div>
+            <div class="dn-item">passengers · reschedules</div>
+            <div class="dn-item">RLS policies on all tables</div>
+          </div>
+          <div class="data-node">
+            <div class="dn-title" style="color:#34D399;">RPCs (atomic)</div>
+            <div class="dn-item">reserve_seat() — FOR UPDATE</div>
+            <div class="dn-item">cancel_booking() — seat free</div>
+            <div class="dn-item">2hr cancellation trigger</div>
+          </div>
+          <div class="data-node" style="border-color:#06B6D4;">
+            <div class="dn-title" style="color:#22D3EE;">Realtime</div>
+            <div class="dn-item">Watch: seats.is_available</div>
+            <div class="dn-item">Broadcast to all subscribers</div>
+            <div class="dn-item">Filter by flight_id</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seat booking race condition prevention -->
+      <div style="background:rgba(244,63,94,0.05);border:1.5px solid #F43F5E;border-radius:12px;padding:20px 24px;">
+        <div style="font-size:13px;font-weight:700;color:#FB7185;margin-bottom:12px;">⚡ Race Condition Prevention — reserve_seat() RPC</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <div style="background:#0D1424;border:1px solid #1E293B;border-radius:8px;padding:8px 14px;font-size:12px;color:#94A3B8;font-family:monospace;">User A clicks seat 12A</div>
+          <div style="color:#475569;">→</div>
+          <div style="background:#0D1424;border:1px solid #1E293B;border-radius:8px;padding:8px 14px;font-size:12px;color:#94A3B8;font-family:monospace;">User B clicks seat 12A</div>
+          <div style="color:#475569;">→</div>
+          <div style="background:rgba(79,70,229,0.1);border:1px solid #4F46E5;border-radius:8px;padding:8px 14px;font-size:12px;color:#818CF8;font-family:monospace;">BEGIN TRANSACTION</div>
+          <div style="color:#475569;">→</div>
+          <div style="background:rgba(79,70,229,0.1);border:1px solid #4F46E5;border-radius:8px;padding:8px 14px;font-size:12px;color:#818CF8;font-family:monospace;">SELECT FOR UPDATE (row lock)</div>
+          <div style="color:#475569;">→</div>
+          <div style="background:rgba(16,185,129,0.1);border:1px solid #10B981;border-radius:8px;padding:8px 14px;font-size:12px;color:#34D399;font-family:monospace;">User A → booked ✓</div>
+          <div style="color:#475569;">+</div>
+          <div style="background:rgba(244,63,94,0.1);border:1px solid #F43F5E;border-radius:8px;padding:8px 14px;font-size:12px;color:#FB7185;font-family:monospace;">User B → error ✗</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- DIAGRAM 4: DB SCHEMA                                       -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="diagram" id="d-schema">
+    <div class="schema-grid">
+
+      <!-- flights -->
+      <div class="schema-table highlighted">
+        <div class="st-header indigo-bg">✈ flights</div>
+        <div class="st-body">
+          <div class="st-row"><span class="st-col pk">id</span><span class="st-badge badge-pk">PK</span></div>
+          <div class="st-row"><span class="st-col">flight_no</span><span class="st-type">text</span></div>
+          <div class="st-row"><span class="st-col">origin</span><span class="st-type">text</span></div>
+          <div class="st-row"><span class="st-col">destination</span><span class="st-type">text</span></div>
+          <div class="st-row"><span class="st-col">departs_at</span><span class="st-type">timestamptz</span></div>
+          <div class="st-row"><span class="st-col">arrives_at</span><span class="st-type">timestamptz</span></div>
+          <div class="st-row"><span class="st-col">aircraft_type</span><span class="st-type">text</span></div>
+          <div class="st-row"><span class="st-col special">status</span><span class="st-type">scheduled|delayed|cancelled</span></div>
+          <div class="st-row"><span class="st-col">base_price</span><span class="st-type">numeric(10,2)</span></div>
+        </div>
+      </div>
+
+      <!-- seats -->
+      <div class="schema-table">
+        <div class="st-header cyan-bg">💺 seats</div>
+        <div class="st-body">
+          <div class="st-row"><span class="st-col pk">id</span><span class="st-badge badge-pk">PK</span></div>
+          <div class="st-row"><span class="st-col fk">flight_id</span><span class="st-badge badge-fk">FK → flights</span></div>
+          <div class="st-row"><span class="st-col">seat_number</span><span class="st-type">text (e.g. 12A)</span></div>
+          <div class="st-row"><span class="st-col special">class</span><span class="st-type">economy|business|first</span></div>
+          <div class="st-row"><span class="st-col special">is_available</span><span class="st-type">boolean</span></div>
+          <div class="st-row"><span class="st-col">extra_fee</span><span class="st-type">numeric(8,2)</span></div>
+        </div>
+      </div>
+
+      <!-- bookings -->
+      <div class="schema-table highlighted">
+        <div class="st-header green-bg">📋 bookings</div>
+        <div class="st-body">
+          <div class="st-row"><span class="st-col pk">id</span><span class="st-badge badge-pk">PK</span></div>
+          <div class="st-row"><span class="st-col fk">user_id</span><span class="st-badge badge-fk">FK → auth.users</span></div>
+          <div class="st-row"><span class="st-col fk">flight_id</span><span class="st-badge badge-fk">FK → flights</span></div>
+          <div class="st-row"><span class="st-col fk">seat_id</span><span class="st-badge badge-fk">FK → seats</span></div>
+          <div class="st-row"><span class="st-col special">status</span><span class="st-type">confirmed|rescheduled|cancelled</span></div>
+          <div class="st-row"><span class="st-col">booked_at</span><span class="st-type">timestamptz</span></div>
+          <div class="st-row"><span class="st-col">total_price</span><span class="st-type">numeric(10,2)</span></div>
+          <div class="st-row"><span class="st-col special">pnr_code</span><span class="st-type">text UNIQUE</span></div>
+        </div>
+      </div>
+
+      <!-- passengers -->
+      <div class="schema-table">
+        <div class="st-header amber-bg">👤 passengers</div>
+        <div class="st-body">
+          <div class="st-row"><span class="st-col pk">id</span><span class="st-badge badge-pk">PK</span></div>
+          <div class="st-row"><span class="st-col fk">booking_id</span><span class="st-badge badge-fk">FK → bookings</span></div>
+          <div class="st-row"><span class="st-col">full_name</span><span class="st-type">text</span></div>
+          <div class="st-row"><span class="st-col special">passport_no</span><span class="st-type">text (sensitive)</span></div>
+          <div class="st-row"><span class="st-col">nationality</span><span class="st-type">text</span></div>
+          <div class="st-row"><span class="st-col">dob</span><span class="st-type">date</span></div>
+        </div>
+      </div>
+
+      <!-- reschedules -->
+      <div class="schema-table">
+        <div class="st-header violet-bg">🔄 reschedules</div>
+        <div class="st-body">
+          <div class="st-row"><span class="st-col pk">id</span><span class="st-badge badge-pk">PK</span></div>
+          <div class="st-row"><span class="st-col fk">booking_id</span><span class="st-badge badge-fk">FK → bookings</span></div>
+          <div class="st-row"><span class="st-col fk">old_flight_id</span><span class="st-badge badge-fk">FK → flights</span></div>
+          <div class="st-row"><span class="st-col fk">new_flight_id</span><span class="st-badge badge-fk">FK → flights</span></div>
+          <div class="st-row"><span class="st-col">requested_at</span><span class="st-type">timestamptz</span></div>
+          <div class="st-row"><span class="st-col">fee_charged</span><span class="st-type">numeric(8,2)</span></div>
+        </div>
+      </div>
+
+      <!-- RLS + Trigger box -->
+      <div style="background:rgba(16,185,129,0.05);border:1.5px solid #10B981;border-radius:12px;padding:16px;">
+        <div style="font-size:12px;font-weight:700;color:#34D399;margin-bottom:10px;">🔒 RLS + DB Rules</div>
+        <div style="font-size:11px;color:#64748B;line-height:1.8;font-family:monospace;">
+          auth.uid() = user_id<br/>
+          → bookings (SELECT, INSERT)<br/>
+          → passengers (SELECT, INSERT)<br/>
+          → reschedules (SELECT, INSERT)<br/>
+          <br/>
+          <span style="color:#94A3B8;">flights / seats:</span><br/>
+          → public READ (anon key ok)<br/>
+          <br/>
+          <span style="color:#FB7185;">TRIGGER:</span><br/>
+          cancel within 2h → RAISE
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- DIAGRAM 5: STATE MANAGEMENT                                -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="diagram" id="d-state">
+
+    <div class="state-grid">
+
+      <!-- useFlightStore -->
+      <div class="store-card highlighted">
+        <div class="sc-header">
+          <div class="sc-icon" style="background:rgba(79,70,229,0.2);">✈</div>
+          <div>
+            <div class="sc-title">useFlightStore</div>
+            <div class="sc-subtitle">Booking journey state</div>
+          </div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-section">
+            <div class="sc-section-title">State Fields</div>
+            <div class="sc-field"><span class="name">searchQuery</span><span class="persist-tag p-yes">persisted</span></div>
+            <div class="sc-field"><span class="name">selectedFlight</span><span class="persist-tag p-yes">persisted</span></div>
+            <div class="sc-field"><span class="name">selectedSeat</span><span class="persist-tag p-yes">persisted</span></div>
+            <div class="sc-field"><span class="name">bookingStep</span><span class="persist-tag p-yes">persisted</span></div>
+            <div class="sc-field"><span class="name">passengerForm.name</span><span class="persist-tag p-part">partial</span></div>
+            <div class="sc-field"><span class="name">passengerForm.passportNo</span><span class="persist-tag p-no">excluded ⚠</span></div>
+          </div>
+          <div class="sc-section">
+            <div class="sc-section-title">Actions</div>
+            <div class="sc-field"><span class="name">setSearchQuery()</span><span class="st-type">updates search</span></div>
+            <div class="sc-field"><span class="name">setSelectedFlight()</span><span class="st-type">flight pick</span></div>
+            <div class="sc-field"><span class="name">setSelectedSeat()</span><span class="st-type">optimistic</span></div>
+            <div class="sc-field"><span class="name">setBookingStep()</span><span class="st-type">1→2→3→4</span></div>
+            <div class="sc-field"><span class="name">resetBooking()</span><span class="st-type">on cancel/logout</span></div>
+          </div>
+          <div style="background:rgba(245,158,11,0.08);border:1px solid #F59E0B;border-radius:8px;padding:10px 12px;margin-top:8px;">
+            <div style="font-size:11px;color:#FCD34D;font-weight:700;margin-bottom:4px;">⚡ Optimistic Seat Selection</div>
+            <div style="font-size:11px;color:#94A3B8;line-height:1.5;">Mark seat selected in store immediately on click → RPC runs in background → revert if fails</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- useUserStore -->
+      <div class="store-card">
+        <div class="sc-header">
+          <div class="sc-icon" style="background:rgba(16,185,129,0.2);">👤</div>
+          <div>
+            <div class="sc-title">useUserStore</div>
+            <div class="sc-subtitle">Auth + cached data</div>
+          </div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-section">
+            <div class="sc-section-title">State Fields</div>
+            <div class="sc-field"><span class="name">session</span><span class="persist-tag p-part">token only</span></div>
+            <div class="sc-field"><span class="name">cachedBookings</span><span class="persist-tag p-no">not persisted</span></div>
+          </div>
+          <div class="sc-section">
+            <div class="sc-section-title">Actions</div>
+            <div class="sc-field"><span class="name">setSession()</span><span class="st-type">on auth change</span></div>
+            <div class="sc-field"><span class="name">setCachedBookings()</span><span class="st-type">after fetch</span></div>
+            <div class="sc-field"><span class="name">resetUser()</span><span class="st-type">on logout</span></div>
+          </div>
+          <div class="sc-section">
+            <div class="sc-section-title">Persist Config</div>
+            <div style="background:#0D1424;border-radius:6px;padding:10px;font-family:monospace;font-size:11px;color:#64748B;line-height:1.7;">
+              <span style="color:#818CF8;">partialize</span>: (state) =&gt; ({<br/>
+              &nbsp;&nbsp;<span style="color:#34D399;">session</span>: state.session<br/>
+              <span style="color:#475569;">// cachedBookings excluded</span><br/>
+              })
+            </div>
+          </div>
+          <div style="background:rgba(244,63,94,0.08);border:1px solid #F43F5E;border-radius:8px;padding:10px 12px;margin-top:8px;">
+            <div style="font-size:11px;color:#FB7185;font-weight:700;margin-bottom:4px;">🔒 Security Note</div>
+            <div style="font-size:11px;color:#94A3B8;line-height:1.5;">passport_no never reaches localStorage. Session token stored but refreshed by middleware on every request.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- persist legend -->
+    <div class="persist-legend">
+      <div class="pl-item"><span class="persist-tag p-yes" style="display:inline-block;">persisted</span>&nbsp;Saved to localStorage</div>
+      <div class="pl-item"><span class="persist-tag p-part" style="display:inline-block;">partial</span>&nbsp;Partially saved (partialize)</div>
+      <div class="pl-item"><span class="persist-tag p-no" style="display:inline-block;">excluded</span>&nbsp;Never touches localStorage</div>
+    </div>
+
+    <!-- Realtime flow -->
+    <div class="realtime-card">
+      <div class="rt-title">⚡ Supabase Realtime — Seat Map Subscription Flow</div>
+      <div class="rt-flow">
+        <div class="rt-step"><strong>User Opens</strong>Seat Map page</div>
+        <div class="rt-arr">→</div>
+        <div class="rt-step"><strong>Subscribe</strong>supabase.channel('seats')<br/>.on('postgres_changes')</div>
+        <div class="rt-arr">→</div>
+        <div class="rt-step"><strong>Another User</strong>books a seat on same flight</div>
+        <div class="rt-arr">→</div>
+        <div class="rt-step"><strong>DB Fires</strong>UPDATE seats<br/>is_available = false</div>
+        <div class="rt-arr">→</div>
+        <div class="rt-step"><strong>Broadcast</strong>Supabase sends event<br/>to all subscribers</div>
+        <div class="rt-arr">→</div>
+        <div class="rt-step"><strong>UI Updates</strong>Seat turns grey<br/>without page refresh</div>
+        <div class="rt-arr">→</div>
+        <div class="rt-step"><strong>Toast shown</strong>"A seat was just taken"</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#4F46E5;"></div>Next.js / Frontend</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#10B981;"></div>Supabase DB</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#06B6D4;"></div>Realtime / WebSocket</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#F59E0B;"></div>Zustand State</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#F43F5E;"></div>Auth / Security</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#7C3AED;"></div>RPC / DB Functions</div>
+  </div>
+
+  <script>
+    function showDiagram(id, el) {
+      document.querySelectorAll('.diagram').forEach(d => d.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('d-' + id).classList.add('active');
+      el.classList.add('active');
+    }
+  </script>
+</body>
+</html>
