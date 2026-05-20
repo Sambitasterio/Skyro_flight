@@ -18,9 +18,18 @@ Run these in the **Supabase SQL Editor** in order. Use **Primary Database** + ro
 | Field | Value |
 |-------|--------|
 | Email | `xyz123@gmail.com` |
-| Password | `1234` (dev/test only — change for production) |
+| Password | `123456` (dev/test only — prefer **Sign up** in app if seed login fails) |
 
 To use your own password, edit the `crypt('...')` value in `seed.sql` **before** running it.
+
+### If login shows "Database error querying schema"
+
+This happens when the test user was inserted via SQL with NULL token columns. Run **`scripts/fix-seed-auth-user.sql`** in the SQL Editor, then try:
+
+- Email: `xyz123@gmail.com`
+- Password: `123456`
+
+Alternatively, use **Sign up** at `/auth/signup` (most reliable).
 
 ## Verify (SQL Editor)
 

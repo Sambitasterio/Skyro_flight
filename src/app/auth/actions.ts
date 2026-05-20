@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { sanitizeRedirectPath } from "@/lib/auth/routes";
@@ -30,6 +31,7 @@ export async function signIn(
     return { error: error.message };
   }
 
+  revalidatePath("/", "layout");
   redirect(redirectTo);
 }
 
@@ -63,11 +65,13 @@ export async function signUp(
     return { error: error.message };
   }
 
+  revalidatePath("/", "layout");
   redirect(redirectTo);
 }
 
 export async function signOut(): Promise<void> {
   const supabase = await createClient();
   await supabase.auth.signOut();
+  revalidatePath("/", "layout");
   redirect("/");
 }

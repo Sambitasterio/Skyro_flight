@@ -557,8 +557,8 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 
 - [ ] `src/lib/supabase/client.ts` — browser client
 - [ ] `src/lib/supabase/server.ts` — `createServerClient` for RSC
-- [ ] `src/lib/supabase/middleware.ts` — session refresh helper
-- [ ] `src/middleware.ts` — protect routes · refresh cookies
+- [ ] `src/lib/supabase/proxy.ts` — session refresh helper (Next.js 16 proxy)
+- [ ] `src/proxy.ts` — protect routes · refresh cookies
 - [ ] `src/app/auth/login/page.tsx` — email/password login form
 - [ ] `src/app/auth/signup/page.tsx` — signup form
 - [ ] `src/components/auth/AuthModal.tsx` — lazy auth modal for seat-selection gate

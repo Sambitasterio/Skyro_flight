@@ -1,11 +1,13 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 import { createClient } from "@/lib/supabase/client";
 import { useUserStore } from "@/store/useUserStore";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const setSession = useUserStore((state) => state.setSession);
   const resetUser = useUserStore((state) => state.resetUser);
 
@@ -21,20 +23,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     void syncSession();
 
+    // Re-sync after Zustand rehydrates from localStorage (can overwrite a fresh login)
+    const unsubscribeHydration = useUserStore.persist.onFinishHydration(() => {
+      void syncSession();
+    });
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        setSession(session);
-      } else {
+      setSession(session);
+      if (!session) {
         resetUser();
       }
     });
 
     return () => {
+      unsubscribeHydration();
       subscription.unsubscribe();
     };
-  }, [resetUser, setSession]);
+  }, [pathname, resetUser, setSession]);
 
   return children;
 }

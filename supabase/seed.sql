@@ -1,5 +1,5 @@
 -- seed.sql — Skyro demo data
--- Test user: xyz123@gmail.com / 1234
+-- Test user: xyz123@gmail.com / 123456 (use /auth/signup if SQL seed login fails)
 -- ⚠️ Edit the password in the crypt() call below if you use a different one.
 
 -- Fixed UUID for reproducible seed references
@@ -16,7 +16,12 @@ INSERT INTO auth.users (
   raw_app_meta_data,
   raw_user_meta_data,
   created_at,
-  updated_at
+  updated_at,
+  confirmation_token,
+  email_change,
+  email_change_token_new,
+  email_change_token_current,
+  recovery_token
 )
 VALUES (
   'a1111111-1111-1111-1111-111111111111',
@@ -24,14 +29,27 @@ VALUES (
   'authenticated',
   'authenticated',
   'xyz123@gmail.com',
-  crypt('1234', gen_salt('bf')),
+  crypt('123456', gen_salt('bf')),
   now(),
   '{"provider":"email","providers":["email"]}',
   '{}',
   now(),
-  now()
+  now(),
+  '',
+  '',
+  '',
+  '',
+  ''
 )
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  encrypted_password = EXCLUDED.encrypted_password,
+  email_confirmed_at = EXCLUDED.email_confirmed_at,
+  confirmation_token = EXCLUDED.confirmation_token,
+  email_change = EXCLUDED.email_change,
+  email_change_token_new = EXCLUDED.email_change_token_new,
+  email_change_token_current = EXCLUDED.email_change_token_current,
+  recovery_token = EXCLUDED.recovery_token,
+  updated_at = now();
 
 INSERT INTO auth.identities (
   id,
