@@ -58,8 +58,9 @@ SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
 | Sensitive data | **No passport in localStorage** | `partialize` excludes `passengerForm` |
 | Mobile UX | Bottom sheets · sticky CTAs | Match reference apps in `design/references/` |
 | Theme | **Dark only** | No light mode / theme toggle — white search card on dark hero |
-| Images | User JPGs from `design/destinations/` | Copied to `/public/hero/` at Phase 3 |
+| Images | User JPGs from `design/destinations/` | Copied to `/public/hero/` — route photos: `goa`, `bengaluru`, `singapore`, `dubai` |
 | **Landing UX (user lock-in)** | **Skyscanner-first** + rotating destination photos | Dark hero · bold white headline · unified white search strip · minimal nav over hero; EaseMyTrip/ixigo only for small details (trip tabs, card dividers) — **not** light-blue hero clone |
+| **Nav — My Bookings** | Hidden until signed in | Footer + navbar omit link when logged out · `/bookings` redirects to login with message |
 
 ---
 
@@ -239,7 +240,7 @@ CREATE TRIGGER bookings_cancel_window
 
 | Field | Persisted? | Notes |
 |---|---|---|
-| `searchQuery` | ✅ Yes | from/to/dates/pax/class |
+| `searchQuery` | ✅ Yes (Phase 3.2) | from/to/dates/pax/class — wired on landing search |
 | `selectedFlight` | ✅ Yes | flight object or id |
 | `selectedSeat` | ✅ Yes | seat id + number |
 | `bookingStep` | ✅ Yes | 1–4 progress |
@@ -309,42 +310,26 @@ Complete these **once**, before Phase 0 begins. The agent will not scaffold the 
 
 ---
 
-## Frontend Design Gate — ⏸️ STOP Before Phase 3
+## Frontend Design Gate — ✅ Phase 3 complete
 
-**Do not start any frontend work (Phases 3–7) until design assets are confirmed.** The agent must pause and verify before building the landing page.
+**Phases 3–7** use assets in **`design/`**. Phase 3 landing is **done**; Phase 4+ still follow subsection pauses.
 
-### Status: ✅ Assets provided by you
+### Status: ✅ Built (May 2026)
 
-All inspiration files live in **`design/`** (see subfolders below). See **Design Assets — design/** for the full inventory and design direction.
+- References in `design/references/` · route photos in `design/destinations/` → copied to `public/hero/`
+- **Skyscanner-first** dark hero + **ixigo-style** floating white search card
+- User preference locked: no light theme · destination slideshow · no manual slide dots
 
-At Phase 3 start, the agent will:
-1. Confirm assets in `design/references/` and `design/destinations/` are still present
-2. Copy destination JPGs → `/public/hero/` (keep PNG references in `design/references/` only)
-3. Ask you to reply *"Phase 3 proceed"* before writing landing page code
+### Before Phase 4 (agent)
 
-### What you provide (reference)
-
-1. **Frontpage / UI references** — screenshots in `design/references/`:
-   - `skyscanner1.png`, `skyscanner2.png`
-   - `easemytrip1.png`, `easemytrip2.png`
-   - `ixigo1.png`, `ixigo2.png`
-
-2. **Destination location images** — Unsplash JPGs in `design/destinations/`:
-   - 6 landscape photos for hero rotation + trending cards
-   - Agent copies these to `/public/hero/` during Phase 3
-
-### Agent reminder (every session)
-
-Before **Phase 3**, the agent must say:
-
-> *"Frontend gate: Your assets are in `design/`. Confirm you want to proceed with the landing page (Skyro indigo theme + these references). Reply **Phase 3 proceed** to start."*
+No frontend gate repeat. Reply **`Phase 4 proceed`** to start `/flights` results.
 
 ---
 
 ## Design Assets — design/
 
 **Folders:** `design/references/` (PNG) · `design/destinations/` (JPG)  
-**Status:** ✅ Provided by user — ready for Phase 3
+**Status:** ✅ In use — route photos added by user (`goa`, `bengaluru`, `singapore`, `dubai`)
 
 ### Frontpage reference screenshots (`design/references/`)
 
@@ -360,23 +345,22 @@ Before **Phase 3**, the agent must say:
 
 - **Hero:** Full-viewport rotating **destination JPGs** (`design/destinations/` → `/public/hero/`) with dark gradient overlay (Skyscanner-style legibility)
 - **Layout:** Skyscanner-style hero + search prominence; borrow EaseMyTrip trip tabs + divided fields only inside the white search card
-- **Nav:** Icon + label tabs (Flights · My Bookings) — not plain text links
+- **Nav:** Icon + label tabs (Flights · My Bookings when signed in) — centered over hero · not plain text links
 - **Search card:** From / swap / To / departure / return / pax+class in one bordered container; gradient indigo Search button
 - **Below hero:** Stats bar + trending destination grid (use your photos) + optional offers row inspired by EaseMyTrip/ixigo
 - **Do not clone** competitor branding — use **Skyro** wordmark, `#4F46E5` primary, white + indigo palette
 
-### Destination photos (`design/destinations/` — hero + trending)
+### Destination photos (`design/destinations/` → `public/hero/`)
 
-| File | Subject (approx.) | Use |
+| Source file | Public alias | Route / use |
 |---|---|---|
-| `joshua-rondeau-EIeVusiphj4-unsplash.jpg` | Santorini, Greece (white village, sunset) | Hero rotation |
-| `magda-vrabetz-Zn_TEtx7Tqg-unsplash.jpg` | London Tower Bridge | Hero + trending card |
-| `andreas-m-KxVk42ksnk8-unsplash.jpg` | Travel / destination | Hero rotation |
-| `datingscout-VbWNQZeS2zs-unsplash.jpg` | Travel / destination | Hero rotation |
-| `johny-goerend-MYXMx2zr1g8-unsplash.jpg` | Travel / destination | Hero rotation |
-| `sebastian-staines-O5rFo-cJu94-unsplash.jpg` | Travel / destination | Hero rotation |
+| `goa.jpg` | `goa.jpg` | DEL → GOA · trending + hero |
+| `bengaluru.jpg` | `bengaluru.jpg` | BOM → BLR · trending + hero |
+| `singapore.jpg` | `singapore.jpg` | DEL → SIN · trending + hero |
+| `dubai.jpg` | `dubai.jpg` | DEL → DXB · trending + hero |
+| Unsplash extras | `santorini.jpg`, `travel-1.jpg`, … | Hero rotation fillers |
 
-**Phase 3 task (agent):** Copy all 6 JPGs from `design/destinations/` to `/public/hero/` with short aliases (e.g. `santorini.jpg`, `london.jpg`, …) and wire into `HeroBackground` + trending cards. Map cities/routes in UI to match seed data (DEL, BOM, GOA, BLR, etc.) even if photo location differs — label cards by route, not photo EXIF.
+**Copy command (when photos change):** see `design/README.md`
 
 **Note:** PNG screenshots stay in `design/references/` for dev reference only — do not use as hero backgrounds.
 
@@ -440,7 +424,7 @@ Test: [how to verify in browser/terminal, if applicable]
 | *"proceed to Phase 5"* | Finish current phase recap, wait for Phase 5 pre-checklist |
 | *"fix …"* | Address feedback before continuing |
 
-**Extra gate:** Before **Phase 3** (first frontend phase), always trigger the **Frontend Design Gate** — even if assets were provided earlier.
+**Frontend gate:** Phase 3 complete — no repeat before Phase 4. Assets live in `design/`.
 
 **Do not:** Batch 4.1 + 4.2 + 4.3 in one response unless you explicitly say *"do 4.1 through 4.3"* or *"no pauses"*.
 
@@ -456,12 +440,12 @@ Test: [how to verify in browser/terminal, if applicable]
 | **Phase 0** | Project Scaffolding | ✅ Done | Paste Supabase keys into `.env.local` · run `npm run dev` to verify |
 | **Phase 1** | Database Setup | ✅ Done | Migrations + seed verified · 8 flights · 2016 seats · test user `xyz123@gmail.com` |
 | **Phase 2** | Auth Setup | ✅ Done | Test login at `/auth/login` · protected `/bookings` redirects when logged out |
-| **Phase 3** | Landing Page | ⬜ Not Started | ✅ Assets in `design/` · reply *"Phase 3 proceed"* when ready to build |
+| **Phase 3** | Landing Page | ✅ Done | Landing reviewed at `/` · search → `/flights?...` · reply *"Phase 4 proceed"* for results page |
 | **Phase 4** | Flight Search Results | ⬜ Not Started | Optional: note any filter/sort preferences from reference sites · smoke-test search in browser after agent ships page |
 | **Phase 5** | Seat Map + Realtime | ⬜ Not Started | Supabase → Database → Replication → add **`seats`** to `supabase_realtime` publication |
 | **Phase 6** | Booking Flow | ⬜ Not Started | End-to-end test booking with test user · verify PNR appears on confirmation page |
 | **Phase 7** | My Bookings | ⬜ Not Started | Test reschedule + cancel flows · confirm cancel blocked < 2 hours before departure (use seed flight times) |
-| **Phase 8** | Zustand Stores | ⬜ Not Started | Open DevTools → Application → Local Storage · confirm passport number is **not** stored |
+| **Phase 8** | Zustand Stores | 🔄 Partial | `useFlightStore` searchQuery persisted (Phase 3) · finalize partialize + passport exclusion in Phase 6/8 |
 | **Phase 9** | PWA (Bonus) | ⬜ Not Started | Chrome Lighthouse audit → screenshot → save to `docs/lighthouse.png` · test install on mobile browser |
 | **Phase 10** | Polish + Deploy | ⬜ Not Started | Create **public** GitHub repo → push → connect Vercel → add 3 env vars → verify production URL · add live URL to README |
 
@@ -512,13 +496,13 @@ Test: [how to verify in browser/terminal, if applicable]
 
 ### Steps
 
-- [ ] **`001_create_tables.sql`** — create all 5 tables + indexes + unique constraints
-- [ ] **`002_enable_rls.sql`** — `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` on all tables
-- [ ] **`003_rls_policies.sql`** — public read on flights/seats; owner policies on bookings/passengers/reschedules
-- [ ] **`004_rpcs.sql`** — `reserve_seat`, `cancel_booking` (security definer)
-- [ ] **`005_triggers.sql`** — `check_cancel_window` trigger on bookings
-- [ ] **`seed.sql`** — flights, seats, test auth user, sample bookings
-- [ ] Document migration order in `supabase/README.md`
+- [x] **`001_create_tables.sql`** — create all 5 tables + indexes + unique constraints
+- [x] **`002_enable_rls.sql`** — `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` on all tables
+- [x] **`003_rls_policies.sql`** — public read on flights/seats; owner policies on bookings/passengers/reschedules
+- [x] **`004_rpcs.sql`** — `reserve_seat`, `cancel_booking` (security definer)
+- [x] **`005_triggers.sql`** — `check_cancel_window` trigger on bookings
+- [x] **`seed.sql`** — flights, seats, test auth user (`xyz123@gmail.com` / `123456`)
+- [x] Document migration order in `supabase/README.md`
 
 **File layout:**
 
@@ -557,77 +541,76 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 
 ### Steps
 
-- [ ] `src/lib/supabase/client.ts` — browser client
-- [ ] `src/lib/supabase/server.ts` — `createServerClient` for RSC
-- [ ] `src/lib/supabase/proxy.ts` — session refresh helper (Next.js 16 proxy)
-- [ ] `src/proxy.ts` — protect routes · refresh cookies
-- [ ] `src/app/auth/login/page.tsx` — email/password login form
-- [ ] `src/app/auth/signup/page.tsx` — signup form
-- [ ] `src/components/auth/AuthModal.tsx` — lazy auth modal for seat-selection gate
-- [ ] `src/components/auth/LogoutButton.tsx`
-- [ ] Server action or route handler: `signIn`, `signUp`, `signOut`
-- [ ] Redirect authenticated users away from `/auth/login` if already logged in
+- [x] `src/lib/supabase/client.ts` — browser client
+- [x] `src/lib/supabase/server.ts` — `createServerClient` for RSC
+- [x] `src/lib/supabase/proxy.ts` — session refresh helper (Next.js 16 proxy)
+- [x] `src/proxy.ts` — protect routes · refresh cookies
+- [x] `src/app/auth/login/page.tsx` — email/password login form
+- [x] `src/app/auth/signup/page.tsx` — signup form
+- [x] `src/components/auth/AuthModal.tsx` — lazy auth modal for seat-selection gate
+- [x] `src/components/auth/LogoutButton.tsx` — client sign-out · instant UI update
+- [x] Server actions: `signIn`, `signUp`, `signOut`
+- [x] Redirect authenticated users away from `/auth/login` if already logged in
 
 **Test:** Sign up test user · login · session cookie present · protected route redirects when logged out
 
 ---
-## PHASE 3 — Frontend: Landing Page (`/`)
+## PHASE 3 — Frontend: Landing Page (`/`) — ✅ COMPLETE
 
-> **Subsection pauses:** Agent completes **one** of 3.1–3.7 per checkpoint, then stops for your *"continue"* (see Agent Workflow).
+> **Phase pause:** Done. Recap below. **Next:** Phase 4 — reply *"Phase 4 proceed"*.
 
-**Goal:** Full-screen hero with rotating background images, minimal nav, search card.
+**Goal:** Full-screen hero with rotating destination photos, search-first landing, marketing sections below.
 
-> **⏸️ YOUR TURN — FRONTEND GATE (required before any Phase 3 work)**
->
-> **✅ You already provided assets in `design/`.** Agent verifies folders, copies JPGs from `design/destinations/` to `/public/hero/`, then builds using Skyscanner + EaseMyTrip + ixigo layout cues (Skyro indigo theme).
->
-> 1. **Frontpage references** — `skyscanner*.png`, `easemytrip*.png`, `ixigo*.png` in `design/references/`
-> 2. **Destination images** — 6 Unsplash JPGs in `design/destinations/` → copied to `/public/hero/` at build time
-> 3. Optional: note any layout preference (e.g. *"more like Skyscanner dark hero"* vs *"more like ixigo light card"*)
->
-> **Reply *"Phase 3 proceed"* when you want the landing page built.**
+### Deliverables (shipped)
+
+| Subsection | Key files |
+|---|---|
+| 3.1 | `layout/Navbar.tsx`, `Footer.tsx`, `globals.css`, `ThemeProvider` removed — **dark-only** |
+| 3.2 | `search/FlightSearchCard.tsx`, `store/useFlightStore.ts` (searchQuery persist) |
+| 3.3 | `landing/HeroBackground.tsx`, `lib/hero/images.ts`, `public/hero/*.jpg` |
+| 3.4 | `landing/HeroSection.tsx`, `app/page.tsx` |
+| 3.5 | `landing/TrendingDestinations.tsx`, `lib/landing/trending-routes.ts` |
+| 3.6 | `StatsBar.tsx`, `WhySkyro.tsx`, `OffersSection.tsx` |
+| 3.7 | Skip link · a11y labels · mobile pax sheet · centered nav tabs |
+
+**Note:** `/flights` is still a **placeholder** until Phase 4 (shows query params only).
 
 ### 3.1 — Layout & Global Styles
-- [ ] Update `src/app/layout.tsx` — Inter font · Skyro metadata · dark mode class on `<html>`
-- [ ] `globals.css` — CSS variables: primary `#4F46E5`, accent `#7C3AED`, surfaces, borders
-- [ ] `src/components/layout/Navbar.tsx` — Sky**ro** wordmark · Flights / My Bookings tabs · auth avatar
-- [ ] `src/components/layout/Footer.tsx` — minimal links
-- [ ] Mobile: bottom nav or hamburger per `design/references/` screenshots
+- [x] `src/app/layout.tsx` — Inter · metadata · skip link · `#main-content`
+- [x] `globals.css` — Skyro tokens · dark-only · hero overlay · focus styles
+- [x] `src/components/layout/Navbar.tsx` — centered tabs · auth-aware · mobile sheet
+- [x] `src/components/layout/Footer.tsx` — auth-aware links (client)
 
 ### 3.2 — Search Card Component
-- [ ] `src/components/search/FlightSearchCard.tsx` — trip type tabs (One Way / Round Trip)
-- [ ] From / To fields with airport code hints (DEL, BOM, …)
-- [ ] Swap origin/destination button
-- [ ] Date pickers (departure · return if round trip)
-- [ ] Passengers + class dropdown
-- [ ] Indigo gradient **Search Flights** CTA → navigates to `/flights?...`
-- [ ] Persist search params via `useFlightStore` on submit
+- [x] `src/components/search/FlightSearchCard.tsx` — One Way / Round Trip
+- [x] From / To · swap · dates · travellers & class
+- [x] Search → `/flights?from&to&depart&trip&pax&class`
+- [x] `useFlightStore` persists `searchQuery`
 
 ### 3.3 — Hero Background (rotating images)
-- [ ] Copy JPGs from `design/destinations/` → `/public/hero/` (see Design Assets inventory)
-- [ ] `src/components/landing/HeroBackground.tsx` — crossfade every 5s · Ken Burns optional
-- [ ] Dark gradient overlay for text contrast
-- [ ] `prefers-reduced-motion` — show static first image
+- [x] Route JPGs in `public/hero/` (`goa`, `bengaluru`, `singapore`, `dubai`, …)
+- [x] `HeroBackground.tsx` — 12s crossfade · Ken Burns · no dot controls
+- [x] Lighter gradient overlay (user-tuned brightness)
+- [x] `prefers-reduced-motion` — static first image
 
 ### 3.4 — Landing Page Assembly
-- [ ] `src/app/page.tsx` — compose Navbar + Hero + SearchCard
-- [ ] Headline: e.g. *"Find your next flight with Skyro"*
-- [ ] Full viewport hero on desktop · stacked on mobile
+- [x] `HeroSection` + headline *"Find your next flight with Skyro"*
+- [x] Full viewport hero (`100svh`) · mobile stack
 
 ### 3.5 — Trending Destinations Grid
-- [ ] `src/components/landing/TrendingDestinations.tsx` — 4 cards with your photos
-- [ ] Route labels: DEL→GOA, BOM→BLR, DEL→SIN, DEL→DXB (match seed)
-- [ ] Click card → pre-fill search and go to `/flights`
+- [x] 4 cards — DEL→GOA, BOM→BLR, DEL→SIN, DEL→DXB
+- [x] Click → update store + navigate to `/flights`
 
 ### 3.6 — Stats Bar & Optional Sections
-- [ ] Stats row: *"500+ flights daily"* style (static marketing copy OK)
-- [ ] **Why Skyro** (optional): 3 feature cards — Instant Booking, Live Seat Map, Free Reschedule
-- [ ] Offers row inspired by EaseMyTrip/ixigo (static cards OK for MVP)
+- [x] Stats bar — frosted icon cards
+- [x] Why Skyro — 3 feature cards
+- [x] Exclusive offers — static promo cards
 
 ### 3.7 — Polish & Responsive Pass
-- [ ] Test 375px / 768px / 1280px
-- [ ] Focus states · aria labels on search fields
-- [ ] Lighthouse accessibility quick check
+- [x] Mobile touch targets · travellers bottom sheet
+- [x] Focus rings · form labels · `aria-*` on search
+- [x] Nav centered when logged in/out · logout without refresh
+- [x] **My Bookings** hidden until login · `/bookings` → login with gate message
 
 ---
 ## PHASE 4 — Frontend: Flight Search Results (`/flights`)
@@ -637,7 +620,7 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 **Goal:** Results list with filter sidebar, sort, and flight cards.
 
 > **⏸️ YOUR TURN — Before Phase 4 starts**
-> - [ ] Phase 3 landing page reviewed in browser — note any layout tweaks wanted
+> - [x] Phase 3 landing page reviewed in browser
 > - [ ] Optional: share a reference for flight results list / filter UI
 > - [ ] After agent ships: test search from home → `/flights?from=...&to=...`
 >
