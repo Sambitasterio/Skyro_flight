@@ -6,7 +6,7 @@ import { WhySkyro } from "@/components/landing/WhySkyro";
 
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col">
+    <main className="flex flex-1 flex-col" tabIndex={-1}>
       <HeroSection />
       <StatsBar />
       <TrendingDestinations />

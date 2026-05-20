@@ -11,18 +11,21 @@ export function Footer() {
           className="flex flex-wrap items-center justify-center gap-6 text-sm"
           aria-label="Footer"
         >
-          <Link href="/" className="text-muted transition hover:text-primary">
+          <Link
+            href="/"
+            className="rounded-md text-muted transition hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
             Search flights
           </Link>
           <Link
             href="/bookings"
-            className="text-muted transition hover:text-primary"
+            className="rounded-md text-muted transition hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             My bookings
           </Link>
           <Link
             href="/auth/login"
-            className="text-muted transition hover:text-primary"
+            className="rounded-md text-muted transition hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             Log in
           </Link>

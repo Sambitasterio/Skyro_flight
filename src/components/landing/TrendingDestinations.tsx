@@ -65,7 +65,7 @@ export function TrendingDestinations() {
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <Image
                     src={route.image}
-                    alt=""
+                    alt={`${route.cityLabel} — ${route.routeLabel}`}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover transition duration-500 group-hover:scale-105"
@@ -86,7 +86,7 @@ export function TrendingDestinations() {
                       From {formatInr(route.priceFrom)}
                     </p>
                   </div>
-                  <span className="text-sm font-medium text-primary opacity-0 transition group-hover:opacity-100">
+                  <span className="text-sm font-medium text-primary sm:opacity-0 sm:transition group-hover:sm:opacity-100">
                     Search →
                   </span>
                 </div>

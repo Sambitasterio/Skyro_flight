@@ -39,6 +39,15 @@ export function Navbar() {
     };
   }, [mobileOpen]);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [mobileOpen]);
+
   // Transparent nav only over dark hero (Phase 3.3+). White placeholder home needs solid nav.
   const transparentNav =
     HERO_TRANSPARENT_NAV && isHeroRoute && !scrolled;
@@ -77,7 +86,7 @@ export function Navbar() {
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+                  className={`flex min-h-11 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
                     active
                       ? solid
                         ? "bg-primary/10 text-primary"

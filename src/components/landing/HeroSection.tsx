@@ -30,8 +30,8 @@ export function HeroSection() {
         </div>
 
         {/* Floating search card — ixigo / Skyscanner composition */}
-        <div className="mt-8 w-full sm:mt-10">
-          <FlightSearchCard className="mx-auto" />
+        <div className="mt-8 w-full max-w-full sm:mt-10">
+          <FlightSearchCard className="mx-auto w-full" />
         </div>
       </div>
     </section>

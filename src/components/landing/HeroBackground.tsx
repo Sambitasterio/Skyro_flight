@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   HERO_FADE_MS,
@@ -25,10 +25,6 @@ export function HeroBackground({ className = "" }: HeroBackgroundProps) {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  const goNext = useCallback(() => {
-    setActiveIndex((i) => (i + 1) % HERO_IMAGES.length);
-  }, []);
-
   useEffect(() => {
     if (reduceMotion || HERO_IMAGES.length <= 1) return;
 
@@ -37,12 +33,17 @@ export function HeroBackground({ className = "" }: HeroBackgroundProps) {
       img.src = HERO_IMAGES[index].src;
     };
 
-    preload((activeIndex + 1) % HERO_IMAGES.length);
-
     let intervalId: ReturnType<typeof setInterval> | undefined;
 
     const start = () => {
-      intervalId = setInterval(goNext, HERO_ROTATE_MS);
+      intervalId = setInterval(() => {
+        setActiveIndex((i) => {
+          const next = (i + 1) % HERO_IMAGES.length;
+          const img = new window.Image();
+          img.src = HERO_IMAGES[next].src;
+          return next;
+        });
+      }, HERO_ROTATE_MS);
     };
 
     const stop = () => {
@@ -59,6 +60,9 @@ export function HeroBackground({ className = "" }: HeroBackgroundProps) {
       }
     };
 
+    const img = new window.Image();
+    img.src = HERO_IMAGES[1]?.src ?? HERO_IMAGES[0].src;
+
     start();
     document.addEventListener("visibilitychange", onVisibility);
 
@@ -66,7 +70,7 @@ export function HeroBackground({ className = "" }: HeroBackgroundProps) {
       stop();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [activeIndex, goNext, reduceMotion]);
+  }, [reduceMotion]);
 
   return (
     <div className={`absolute inset-0 overflow-hidden ${className}`} aria-hidden>
