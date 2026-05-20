@@ -1,15 +1,12 @@
+import { HeroBackground } from "@/components/landing/HeroBackground";
 import { FlightSearchCard } from "@/components/search/FlightSearchCard";
 
 export default function Home() {
   return (
     <main className="flex flex-1 flex-col">
-      {/* Placeholder hero shell until 3.3 destination photos */}
-      {/* -mt-16 + pt-24: dark hero extends under fixed navbar (fixes invisible white nav links) */}
-      <section className="relative -mt-16 flex min-h-[min(720px,85vh)] flex-col items-center justify-center bg-slate-900 px-4 pb-16 pt-24 sm:px-6">
-        <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/70 to-slate-900"
-          aria-hidden
-        />
+      <section className="relative -mt-16 flex min-h-[min(720px,85vh)] flex-col items-center justify-center overflow-hidden px-4 pb-16 pt-24 sm:px-6">
+        <HeroBackground />
+
         <div className="relative z-10 mx-auto w-full max-w-5xl text-center">
           <p className="mb-3 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-medium text-white/90 backdrop-blur-sm">
             500+ destinations worldwide

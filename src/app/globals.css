@@ -15,8 +15,8 @@
   --ring: #6366f1;
   --hero-overlay: linear-gradient(
     180deg,
-    rgba(2, 6, 23, 0.55) 0%,
-    rgba(2, 6, 23, 0.85) 100%
+    rgba(2, 6, 23, 0.28) 0%,
+    rgba(2, 6, 23, 0.58) 100%
   );
 }
 
@@ -76,6 +76,19 @@ body {
   background: transparent;
 }
 
+@keyframes hero-ken-burns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.06);
+  }
+}
+
+.animate-hero-ken-burns {
+  animation: hero-ken-burns 18s ease-out forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -87,5 +100,9 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .animate-hero-ken-burns {
+    animation: none !important;
   }
 }
