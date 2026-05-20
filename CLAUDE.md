@@ -57,7 +57,7 @@ SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
 | Cancel rule | **2 hours before departure** | DB trigger blocks late cancels |
 | Sensitive data | **No passport in localStorage** | `partialize` excludes `passengerForm` |
 | Mobile UX | Bottom sheets · sticky CTAs | Match reference apps in `design/references/` |
-| Dark mode | Supported via CSS variables | Toggle in nav (Phase 3+) |
+| Theme | **Dark only** | No light mode / theme toggle — white search card on dark hero |
 | Images | User JPGs from `design/destinations/` | Copied to `/public/hero/` at Phase 3 |
 | **Landing UX (user lock-in)** | **Skyscanner-first** + rotating destination photos | Dark hero · bold white headline · unified white search strip · minimal nav over hero; EaseMyTrip/ixigo only for small details (trip tabs, card dividers) — **not** light-blue hero clone |
 

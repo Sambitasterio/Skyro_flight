@@ -1,33 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+  --background: #0f172a;
+  --foreground: #f1f5f9;
   --primary: #4f46e5;
   --primary-foreground: #ffffff;
   --accent: #7c3aed;
   --accent-foreground: #ffffff;
-  --surface: #f8fafc;
-  --card: #ffffff;
-  --muted: #64748b;
-  --muted-foreground: #94a3b8;
-  --border: #e2e8f0;
-  --ring: #4f46e5;
-  --hero-overlay: linear-gradient(
-    180deg,
-    rgba(15, 23, 42, 0.45) 0%,
-    rgba(15, 23, 42, 0.72) 100%
-  );
-}
-
-[data-theme="dark"] {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
   --surface: #1e293b;
   --card: #1e293b;
-  --border: #334155;
   --muted: #94a3b8;
   --muted-foreground: #64748b;
+  --border: #334155;
+  --ring: #6366f1;
   --hero-overlay: linear-gradient(
     180deg,
     rgba(2, 6, 23, 0.55) 0%,
@@ -53,6 +38,7 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: dark;
 }
 
 body {
@@ -62,7 +48,7 @@ body {
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--primary) 25%, transparent);
+  background: color-mix(in srgb, var(--primary) 35%, transparent);
   color: var(--foreground);
 }
 
@@ -71,7 +57,6 @@ body {
   outline-offset: 2px;
 }
 
-/* Scrollbar — subtle, matches theme */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;

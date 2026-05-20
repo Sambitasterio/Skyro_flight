@@ -106,10 +106,10 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className={`w-full max-w-5xl rounded-2xl bg-card shadow-2xl ring-1 ring-black/5 ${className}`}
+      className={`w-full max-w-5xl rounded-2xl bg-white text-slate-900 shadow-2xl ring-1 ring-white/20 ${className}`}
     >
       {/* Trip type — EaseMyTrip-style pills inside card */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-4 sm:px-6">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 px-4 py-4 sm:px-6">
         {TRIP_TYPES.map(({ value, label }) => (
           <button
             key={value}
@@ -118,20 +118,20 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
             className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
               tripType === value
                 ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-surface text-muted hover:text-foreground"
+                : "bg-slate-100 text-slate-600 hover:text-slate-900"
             }`}
           >
             {label}
           </button>
         ))}
-        <span className="ml-auto hidden text-xs text-muted sm:inline">
+        <span className="ml-auto hidden text-xs text-slate-500 sm:inline">
           Search domestic & international routes
         </span>
       </div>
 
       {/* Main fields — Skyscanner / ixigo unified strip */}
       <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1.2fr)_auto_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)]">
-        <FieldBlock label="From" className="md:border-r md:border-border">
+        <FieldBlock label="From" className="md:border-r md:border-slate-200">
           <input
             type="text"
             list={listId}
@@ -139,24 +139,24 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
             onChange={(e) => setOriginInput(e.target.value.toUpperCase())}
             placeholder="DEL"
             autoComplete="off"
-            className="w-full bg-transparent text-xl font-bold text-foreground outline-none placeholder:text-muted-foreground/50"
+            className="w-full bg-transparent text-xl font-bold text-slate-900 outline-none placeholder:text-slate-400"
             aria-label="Origin airport"
           />
           <Hint airport={originAirport} fallback="City or airport code" />
         </FieldBlock>
 
-        <div className="flex items-center justify-center border-b border-border px-2 py-3 md:border-b-0 md:border-r md:border-border">
+        <div className="flex items-center justify-center border-b border-slate-200 px-2 py-3 md:border-b-0 md:border-r md:border-slate-200">
           <button
             type="button"
             onClick={swapLocations}
             aria-label="Swap origin and destination"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-primary transition hover:bg-primary/10 hover:rotate-180"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-primary transition hover:bg-indigo-50 hover:rotate-180"
           >
             <SwapIcon />
           </button>
         </div>
 
-        <FieldBlock label="To" className="md:border-r md:border-border">
+        <FieldBlock label="To" className="md:border-r md:border-slate-200">
           <input
             type="text"
             list={listId}
@@ -164,29 +164,29 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
             onChange={(e) => setDestInput(e.target.value.toUpperCase())}
             placeholder="BOM"
             autoComplete="off"
-            className="w-full bg-transparent text-xl font-bold text-foreground outline-none placeholder:text-muted-foreground/50"
+            className="w-full bg-transparent text-xl font-bold text-slate-900 outline-none placeholder:text-slate-400"
             aria-label="Destination airport"
           />
           <Hint airport={destAirport} fallback="City or airport code" />
         </FieldBlock>
 
-        <FieldBlock label="Depart" className="md:border-r md:border-border">
+        <FieldBlock label="Depart" className="md:border-r md:border-slate-200">
           <input
             type="date"
             value={departDate}
             min={new Date().toISOString().slice(0, 10)}
             onChange={(e) => setDepartDate(e.target.value)}
-            className="w-full bg-transparent text-lg font-bold text-foreground outline-none [color-scheme:light] dark:[color-scheme:dark]"
+            className="w-full bg-transparent text-lg font-bold text-slate-900 outline-none [color-scheme:light]"
             aria-label="Departure date"
           />
-          <span className="text-xs text-muted">
+          <span className="text-xs text-slate-500">
             {departDate ? formatDay(departDate) : "Add date"}
           </span>
         </FieldBlock>
 
         <FieldBlock
           label="Return"
-          className={`md:border-r md:border-border ${
+          className={`md:border-r md:border-slate-200 ${
             tripType === "oneway" ? "opacity-50" : ""
           }`}
         >
@@ -196,10 +196,10 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
             min={departDate || new Date().toISOString().slice(0, 10)}
             disabled={tripType === "oneway"}
             onChange={(e) => setReturnDate(e.target.value)}
-            className="w-full bg-transparent text-lg font-bold text-foreground outline-none disabled:cursor-not-allowed [color-scheme:light] dark:[color-scheme:dark]"
+            className="w-full bg-transparent text-lg font-bold text-slate-900 outline-none disabled:cursor-not-allowed [color-scheme:light]"
             aria-label="Return date"
           />
-          <span className="text-xs text-muted">
+          <span className="text-xs text-slate-500">
             {tripType === "oneway"
               ? "One way only"
               : returnDate
@@ -216,10 +216,10 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
             aria-expanded={paxOpen}
             aria-haspopup="listbox"
           >
-            <span className="block text-lg font-bold text-foreground">
+            <span className="block text-lg font-bold text-slate-900">
               {passengerCount} Traveller{passengerCount > 1 ? "s" : ""}
             </span>
-            <span className="text-xs text-muted">{paxLabel}</span>
+            <span className="text-xs text-slate-500">{paxLabel}</span>
           </button>
 
           {paxOpen && (
@@ -229,8 +229,8 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
                 aria-hidden
                 onClick={() => setPaxOpen(false)}
               />
-              <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-xl border border-border bg-card p-4 shadow-xl">
-                <label className="mb-2 block text-xs font-medium text-muted">
+              <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-xl border border-slate-200 bg-white p-4 shadow-xl">
+                <label className="mb-2 block text-xs font-medium text-slate-500">
                   Adults
                 </label>
                 <select
@@ -238,7 +238,7 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
                   onChange={(e) =>
                     setPassengerCount(Number(e.target.value))
                   }
-                  className="mb-4 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+                  className="mb-4 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900"
                 >
                   {Array.from({ length: 9 }, (_, i) => i + 1).map((n) => (
                     <option key={n} value={n}>
@@ -246,7 +246,7 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
                     </option>
                   ))}
                 </select>
-                <label className="mb-2 block text-xs font-medium text-muted">
+                <label className="mb-2 block text-xs font-medium text-slate-500">
                   Cabin class
                 </label>
                 <select
@@ -254,7 +254,7 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
                   onChange={(e) =>
                     setCabinClass(e.target.value as CabinClass)
                   }
-                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900"
                 >
                   {CABIN_CLASSES.map(({ value, label }) => (
                     <option key={value} value={value}>
@@ -283,7 +283,7 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
       )}
 
       {/* CTA — indigo gradient Search */}
-      <div className="border-t border-border px-4 py-4 sm:px-6 sm:py-5">
+      <div className="border-t border-slate-200 px-4 py-4 sm:px-6 sm:py-5">
         <button
           type="submit"
           className="w-full rounded-xl bg-gradient-to-r from-primary to-accent px-6 py-4 text-base font-bold text-primary-foreground shadow-lg transition hover:opacity-95 active:scale-[0.99] sm:text-lg"
@@ -306,9 +306,9 @@ function FieldBlock({
 }) {
   return (
     <div
-      className={`border-b border-border px-4 py-4 last:border-b-0 sm:px-5 ${className}`}
+      className={`border-b border-slate-200 px-4 py-4 last:border-b-0 sm:px-5 ${className}`}
     >
-      <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">
+      <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
         {label}
       </span>
       {children}
@@ -325,12 +325,12 @@ function Hint({
 }) {
   if (airport) {
     return (
-      <p className="mt-0.5 truncate text-xs text-muted">
+      <p className="mt-0.5 truncate text-xs text-slate-500">
         {airport.code}, {airport.name}
       </p>
     );
   }
-  return <p className="mt-0.5 text-xs text-muted">{fallback}</p>;
+  return <p className="mt-0.5 text-xs text-slate-500">{fallback}</p>;
 }
 
 function formatDay(isoDate: string): string {

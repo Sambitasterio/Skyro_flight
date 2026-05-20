@@ -4,8 +4,6 @@ import { Inter } from "next/font/google";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
-import { ThemeProvider } from "@/components/layout/ThemeProvider";
-import { ThemeScript } from "@/components/layout/ThemeScript";
 import "./globals.css";
 
 const inter = Inter({
@@ -29,22 +27,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} h-full antialiased`}
-      suppressHydrationWarning
-    >
-      <head>
-        <ThemeScript />
-      </head>
+    <html lang="en" className={`${inter.variable} dark h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <ThemeProvider>
-          <AuthProvider>
-            <Navbar />
-            <div className="flex flex-1 flex-col">{children}</div>
-            <Footer />
-          </AuthProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <Navbar />
+          <div className="flex flex-1 flex-col">{children}</div>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );
