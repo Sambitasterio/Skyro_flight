@@ -9,12 +9,12 @@ export interface TrendingRoute {
   tag: string;
 }
 
-/** Trending cards — routes aligned with seed + popular international pairs */
+/** Trending cards — images match `design/destinations/{goa,bengaluru,singapore,dubai}.jpg` */
 export const TRENDING_ROUTES: TrendingRoute[] = [
   {
     origin: "DEL",
     destination: "GOA",
-    image: "/hero/travel-3.jpg",
+    image: "/hero/goa.jpg",
     cityLabel: "Goa",
     routeLabel: "DEL → GOA",
     duration: "2h 15m",
@@ -24,7 +24,7 @@ export const TRENDING_ROUTES: TrendingRoute[] = [
   {
     origin: "BOM",
     destination: "BLR",
-    image: "/hero/london.jpg",
+    image: "/hero/bengaluru.jpg",
     cityLabel: "Bengaluru",
     routeLabel: "BOM → BLR",
     duration: "1h 35m",
@@ -34,7 +34,7 @@ export const TRENDING_ROUTES: TrendingRoute[] = [
   {
     origin: "DEL",
     destination: "SIN",
-    image: "/hero/santorini.jpg",
+    image: "/hero/singapore.jpg",
     cityLabel: "Singapore",
     routeLabel: "DEL → SIN",
     duration: "5h 30m",
@@ -44,7 +44,7 @@ export const TRENDING_ROUTES: TrendingRoute[] = [
   {
     origin: "DEL",
     destination: "DXB",
-    image: "/hero/travel-4.jpg",
+    image: "/hero/dubai.jpg",
     cityLabel: "Dubai",
     routeLabel: "DEL → DXB",
     duration: "3h 45m",
