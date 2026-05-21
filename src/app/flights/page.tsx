@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { FlightsResultsPanel } from "@/components/flights/FlightsResultsPanel";
 import { FlightResultsSkeleton } from "@/components/flights/FlightResultsSkeleton";
 import { FlightsResultsLayout } from "@/components/flights/FlightsResultsLayout";
+import { parseFlightFilterParams } from "@/lib/flights/filter-params";
 import { parseFlightsSearchParams } from "@/lib/flights/parse-search-params";
 import { searchFlights } from "@/lib/flights/search-flights";
 
@@ -47,13 +48,14 @@ function FlightsPanelFallback() {
 async function FlightsResultsContent({ searchParams }: FlightsPageProps) {
   const raw = await searchParams;
   const params = parseFlightsSearchParams(raw);
+  const filters = parseFlightFilterParams(raw);
 
   let flights: Awaited<ReturnType<typeof searchFlights>>["flights"] = [];
   let flexibleDate = false;
   let fetchError: string | null = null;
 
   try {
-    const result = await searchFlights(params);
+    const result = await searchFlights(params, filters);
     flights = result.flights;
     flexibleDate = result.flexibleDate;
   } catch (err) {

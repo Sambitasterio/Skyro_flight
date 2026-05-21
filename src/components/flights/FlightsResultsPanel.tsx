@@ -10,8 +10,12 @@ import type { FlightRow } from "@/types/database";
 
 import { FlightFilters, MobileFilterSheet } from "./FlightFilters";
 import { FlightResultsHeader } from "./FlightResultsHeader";
-import { FlightResultsEmpty } from "./FlightResultsPlaceholderList";
+import {
+  FlightResultsEmpty,
+  FlightResultsFilterEmpty,
+} from "./FlightResultsPlaceholderList";
 import { FlightResultsList } from "./FlightResultsList";
+import { FlightResultsSort } from "./FlightResultsSort";
 import { FlightsResultsLayout } from "./FlightsResultsLayout";
 
 interface FlightsResultsPanelProps {
@@ -47,14 +51,7 @@ export function FlightsResultsPanel({
   ) : flights.length === 0 ? (
     <FlightResultsEmpty />
   ) : filteredFlights.length === 0 ? (
-    <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-12 text-center">
-      <p className="text-lg font-semibold text-foreground">
-        No flights match your filters
-      </p>
-      <p className="mt-2 text-sm text-muted">
-        Try clearing filters or adjusting price and departure time.
-      </p>
-    </div>
+    <FlightResultsFilterEmpty />
   ) : (
     <>
       {flexibleDate ? (
@@ -62,10 +59,13 @@ export function FlightsResultsPanel({
           No flights on your exact date — showing upcoming flights on this route.
         </p>
       ) : null}
-      <FlightResultsList
-        flights={filteredFlights}
-        cabinClass={search.cabinClass}
-      />
+      <div className="space-y-4">
+        <FlightResultsSort search={search} />
+        <FlightResultsList
+          flights={filteredFlights}
+          cabinClass={search.cabinClass}
+        />
+      </div>
     </>
   );
 
@@ -75,7 +75,7 @@ export function FlightsResultsPanel({
         <FlightResultsHeader
           params={search}
           count={fetchError ? 0 : filteredFlights.length}
-          flexibleDate={false}
+          flexibleDate={flexibleDate && !fetchError}
           totalUnfiltered={
             fetchError || filteredFlights.length === flights.length
               ? undefined

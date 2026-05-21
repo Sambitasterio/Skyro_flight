@@ -3,12 +3,22 @@ import type { FlightRow } from "@/types/database";
 import { priceForCabin } from "./pricing";
 import type { CabinClass } from "@/types/flight";
 
-export type FlightSortMode = "best" | "cheapest" | "fastest";
+export type FlightSortMode =
+  | "price_asc"
+  | "price_desc"
+  | "depart_asc"
+  | "depart_desc"
+  | "duration_asc";
 
-export function parseSortMode(raw: string | undefined): FlightSortMode {
-  if (raw === "cheapest" || raw === "fastest") return raw;
-  return "best";
-}
+export const SORT_OPTIONS: { value: FlightSortMode; label: string }[] = [
+  { value: "price_asc", label: "Cheapest first" },
+  { value: "price_desc", label: "Price: high to low" },
+  { value: "depart_asc", label: "Departure (earliest)" },
+  { value: "depart_desc", label: "Departure (latest)" },
+  { value: "duration_asc", label: "Shortest duration" },
+];
+
+const VALID_SORTS = new Set<string>(SORT_OPTIONS.map((o) => o.value));
 
 function durationMinutes(flight: FlightRow): number {
   return (
@@ -22,82 +32,51 @@ function displayPrice(flight: FlightRow, cabin: CabinClass): number {
   return priceForCabin(Number(flight.base_price), cabin);
 }
 
+/** Parse `sort` URL param (includes legacy best/cheapest/fastest). */
+export function parseSortMode(raw: string | undefined): FlightSortMode {
+  if (raw && VALID_SORTS.has(raw)) return raw as FlightSortMode;
+  if (raw === "cheapest") return "price_asc";
+  if (raw === "fastest") return "duration_asc";
+  if (raw === "best") return "price_asc";
+  return "price_asc";
+}
+
 export function sortFlights(
   flights: FlightRow[],
   mode: FlightSortMode,
   cabin: CabinClass,
 ): FlightRow[] {
   const copy = [...flights];
-  if (mode === "cheapest") {
-    return copy.sort(
-      (a, b) => displayPrice(a, cabin) - displayPrice(b, cabin),
-    );
+
+  switch (mode) {
+    case "price_asc":
+      return copy.sort(
+        (a, b) => displayPrice(a, cabin) - displayPrice(b, cabin),
+      );
+    case "price_desc":
+      return copy.sort(
+        (a, b) => displayPrice(b, cabin) - displayPrice(a, cabin),
+      );
+    case "depart_asc":
+      return copy.sort(
+        (a, b) =>
+          new Date(a.departs_at).getTime() - new Date(b.departs_at).getTime(),
+      );
+    case "depart_desc":
+      return copy.sort(
+        (a, b) =>
+          new Date(b.departs_at).getTime() - new Date(a.departs_at).getTime(),
+      );
+    case "duration_asc":
+      return copy.sort((a, b) => durationMinutes(a) - durationMinutes(b));
+    default:
+      return copy;
   }
-  if (mode === "fastest") {
-    return copy.sort((a, b) => durationMinutes(a) - durationMinutes(b));
-  }
-  const prices = copy.map((f) => displayPrice(f, cabin));
-  const durations = copy.map((f) => durationMinutes(f));
-  const minP = Math.min(...prices);
-  const maxP = Math.max(...prices) || 1;
-  const minD = Math.min(...durations);
-  const maxD = Math.max(...durations) || 1;
-
-  return copy.sort((a, b) => {
-    const scoreA =
-      ((displayPrice(a, cabin) - minP) / (maxP - minP || 1)) * 0.55 +
-      ((durationMinutes(a) - minD) / (maxD - minD || 1)) * 0.45;
-    const scoreB =
-      ((displayPrice(b, cabin) - minP) / (maxP - minP || 1)) * 0.55 +
-      ((durationMinutes(b) - minD) / (maxD - minD || 1)) * 0.45;
-    return scoreA - scoreB;
-  });
-}
-
-export interface SortTabMeta {
-  price: number;
-  durationLabel: string;
-}
-
-export function computeSortTabMeta(
-  flights: FlightRow[],
-  cabin: CabinClass,
-): Record<FlightSortMode, SortTabMeta | null> {
-  if (flights.length === 0) {
-    return { best: null, cheapest: null, fastest: null };
-  }
-
-  const best = sortFlights(flights, "best", cabin)[0];
-  const cheapest = sortFlights(flights, "cheapest", cabin)[0];
-  const fastest = sortFlights(flights, "fastest", cabin)[0];
-
-  const fmtDuration = (f: FlightRow) => {
-    const m = durationMinutes(f);
-    const h = Math.floor(m / 60);
-    const min = m % 60;
-    return h > 0 ? `${h}h ${min}m` : `${min}m`;
-  };
-
-  return {
-    best: {
-      price: displayPrice(best, cabin),
-      durationLabel: fmtDuration(best),
-    },
-    cheapest: {
-      price: displayPrice(cheapest, cabin),
-      durationLabel: fmtDuration(cheapest),
-    },
-    fastest: {
-      price: displayPrice(fastest, cabin),
-      durationLabel: fmtDuration(fastest),
-    },
-  };
 }
 
 export function cheapestNonStopFlightId(flights: FlightRow[]): string | null {
-  const direct = flights;
-  if (direct.length === 0) return null;
-  return direct.reduce((a, b) =>
+  if (flights.length === 0) return null;
+  return flights.reduce((a, b) =>
     Number(a.base_price) <= Number(b.base_price) ? a : b,
   ).id;
 }

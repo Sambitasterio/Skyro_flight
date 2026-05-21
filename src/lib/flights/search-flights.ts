@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { FlightRow } from "@/types/database";
 
+import type { FlightFilterState } from "./filter-params";
 import type { FlightsSearchParams } from "./parse-search-params";
 
 export interface SearchFlightsResult {
@@ -18,7 +19,7 @@ function departDayBounds(departDate: string): { start: string; end: string } {
 
 async function queryFlights(
   params: FlightsSearchParams,
-  options: { dateFilter: boolean },
+  options: { dateFilter: boolean; filters?: FlightFilterState },
 ): Promise<FlightRow[]> {
   const supabase = await createClient();
   let query = supabase
@@ -28,8 +29,7 @@ async function queryFlights(
     )
     .eq("origin", params.origin)
     .eq("destination", params.destination)
-    .eq("status", "scheduled")
-    .order("departs_at", { ascending: true });
+    .eq("status", "scheduled");
 
   if (options.dateFilter) {
     const { start, end } = departDayBounds(params.departDate);
@@ -37,6 +37,16 @@ async function queryFlights(
   } else {
     query = query.gte("departs_at", new Date().toISOString());
   }
+
+  const filters = options.filters;
+  if (filters?.minPrice !== null && filters?.minPrice !== undefined) {
+    query = query.gte("base_price", filters.minPrice);
+  }
+  if (filters?.maxPrice !== null && filters?.maxPrice !== undefined) {
+    query = query.lte("base_price", filters.maxPrice);
+  }
+
+  query = query.order("departs_at", { ascending: true });
 
   const { data, error } = await query;
 
@@ -49,18 +59,25 @@ async function queryFlights(
 
 /**
  * Fetch flights for the search route.
- * Seed depart times are relative to `now()`, so we fall back to upcoming
- * flights on the same route when the selected calendar day has no matches.
+ * Price filters run on Supabase; stops/time stay client-side (Phase 4.2).
+ * Falls back to upcoming flights when the selected day has no rows (seed dates).
  */
 export async function searchFlights(
   params: FlightsSearchParams,
+  filters?: FlightFilterState,
 ): Promise<SearchFlightsResult> {
-  const onDate = await queryFlights(params, { dateFilter: true });
+  const onDate = await queryFlights(params, {
+    dateFilter: true,
+    filters,
+  });
   if (onDate.length > 0) {
     return { flights: onDate, flexibleDate: false };
   }
 
-  const upcoming = await queryFlights(params, { dateFilter: false });
+  const upcoming = await queryFlights(params, {
+    dateFilter: false,
+    filters,
+  });
   return {
     flights: upcoming,
     flexibleDate: upcoming.length > 0,

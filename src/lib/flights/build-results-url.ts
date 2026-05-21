@@ -20,10 +20,9 @@ export function buildFlightsResultsUrl(
     class: cabinClass,
   });
 
-  if (options?.sort && options.sort !== "best") {
-    params.set("sort", options.sort);
-  } else if (options?.sort === "best") {
-    params.delete("sort");
+  const sort = options?.sort ?? "price_asc";
+  if (sort !== "price_asc") {
+    params.set("sort", sort);
   }
 
   if (search.tripType === "round" && search.returnDate) {

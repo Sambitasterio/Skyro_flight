@@ -23,9 +23,14 @@ interface FlightCardProps {
   flight: FlightRow;
   /** Cabin from search URL — initial tab selection. */
   defaultCabin: CabinClass;
+  bestValue?: boolean;
 }
 
-export function FlightCard({ flight, defaultCabin }: FlightCardProps) {
+export function FlightCard({
+  flight,
+  defaultCabin,
+  bestValue = false,
+}: FlightCardProps) {
   const router = useRouter();
   const setSelectedFlight = useFlightStore((s) => s.setSelectedFlight);
   const setBookingStep = useFlightStore((s) => s.setBookingStep);
@@ -55,6 +60,11 @@ export function FlightCard({ flight, defaultCabin }: FlightCardProps) {
 
   return (
     <article className="rounded-2xl border border-border bg-card transition hover:border-primary/40 hover:shadow-md hover:shadow-primary/5">
+      {bestValue ? (
+        <div className="bg-amber-500/90 px-4 py-1 text-xs font-bold uppercase tracking-wide text-white">
+          Best value · Non-stop
+        </div>
+      ) : null}
       <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-stretch lg:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
