@@ -6,9 +6,14 @@ import { BookingConfirmationPage } from "@/components/booking/BookingConfirmatio
 import { getBookingByPnr } from "@/lib/booking/get-booking-by-pnr";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = {
-  title: "Booking confirmed",
-};
+export async function generateMetadata({
+  params,
+}: BookingConfirmationRouteProps): Promise<Metadata> {
+  const { pnr } = await params;
+  return {
+    title: `Confirmed · ${pnr.toUpperCase()}`,
+  };
+}
 
 interface BookingConfirmationRouteProps {
   params: Promise<{ pnr: string }>;

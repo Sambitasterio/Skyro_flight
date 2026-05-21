@@ -754,10 +754,11 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 - [x] On failure: inline error on form
 
 ### 6.4 — Confirmation Page
-- [ ] `src/app/booking/[pnr]/page.tsx` — fetch booking by PNR + user
-- [ ] Display: PNR large · flight · seat · passenger · total paid
-- [ ] CTAs: **View My Bookings** · **Book another flight**
-- [ ] `bookingStep` = 4 · optional `resetBooking` on leave
+- [x] `app/booking/[pnr]/page.tsx` — auth gate · `getBookingByPnr`
+- [x] PNR hero · `CopyPnrButton` · animated checkmark
+- [x] Flight · seat · passenger (masked govt ID) · total paid · status badge
+- [x] CTAs reset store → **My Bookings** / **Search another flight**
+- [x] `bookingStep` = 4
 
 ### 6.5 — Booking UX Polish
 - [ ] Print-friendly confirmation stylesheet (optional)
