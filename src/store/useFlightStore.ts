@@ -10,6 +10,7 @@ import type {
   SelectedSeat,
   TripType,
 } from "@/types/flight";
+import type { PassengerFormData } from "@/types/passenger";
 
 function defaultDepartDate(): string {
   const d = new Date();
@@ -33,30 +34,23 @@ export const defaultSearchQuery: SearchQuery = {
   tripType: "oneway",
 };
 
-interface PassengerForm {
-  fullName: string;
-  nationality: string;
-  dob: string;
-  passportNo: string;
-}
-
 interface FlightState {
   searchQuery: SearchQuery;
   selectedFlight: SelectedFlight | null;
   selectedSeat: SelectedSeat | null;
   activeBooking: ActiveBooking | null;
   bookingStep: BookingStep;
-  passengerForm: PassengerForm;
+  passengerForm: PassengerFormData;
   setSearchQuery: (query: Partial<SearchQuery>) => void;
   setSelectedFlight: (flight: SelectedFlight | null) => void;
   setSelectedSeat: (seat: SelectedSeat | null) => void;
   setActiveBooking: (booking: ActiveBooking | null) => void;
   setBookingStep: (step: BookingStep) => void;
-  setPassengerForm: (form: Partial<PassengerForm>) => void;
+  setPassengerForm: (form: Partial<PassengerFormData>) => void;
   resetBooking: () => void;
 }
 
-const defaultPassengerForm: PassengerForm = {
+const defaultPassengerForm: PassengerFormData = {
   fullName: "",
   nationality: "",
   dob: "",

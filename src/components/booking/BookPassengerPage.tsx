@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { BookingProgress } from "@/components/booking/BookingProgress";
 import { BookingSummarySidebar } from "@/components/booking/BookingSummarySidebar";
+import { PassengerForm } from "@/components/booking/PassengerForm";
 import { useFlightStore } from "@/store/useFlightStore";
 import type { FlightRow } from "@/types/database";
 
@@ -114,18 +115,7 @@ export function BookPassengerPage({ flight, flightId }: BookPassengerPageProps) 
             </p>
           </header>
 
-          <div
-            className="rounded-2xl border border-dashed border-border bg-card px-6 py-12 text-center"
-            aria-label="Passenger form placeholder"
-          >
-            <p className="text-sm font-medium text-muted">
-              Passenger form — Phase 6.2
-            </p>
-            <p className="mt-2 text-xs text-muted">
-              Reply <strong className="text-foreground">continue</strong> to
-              build the form next.
-            </p>
-          </div>
+          <PassengerForm flightId={flightId} />
         </div>
 
         <div className="w-full shrink-0 lg:w-80">

@@ -740,10 +740,10 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 - [x] Redirect if no `activeBooking` for this flight (after store hydration)
 
 ### 6.2 — Passenger Form
-- [ ] `src/components/booking/PassengerForm.tsx` — full name · passport · nationality · DOB
-- [ ] Client-side validation (required fields · date format)
-- [ ] **Do not** write passport to localStorage
-- [ ] `bookingStep` = 3 in store
+- [x] `PassengerForm.tsx` — full name · passport · nationality · DOB
+- [x] `validate-passenger.ts` — required fields · past DOB · passport format
+- [x] Passport masked on blur · `passengerForm` excluded from Zustand `partialize`
+- [x] `bookingStep` = 3 · Back to seat selection link
 
 ### 6.3 — Submit & passenger row
 - [ ] Insert `passengers` row linked to `activeBooking.id` from Phase 5.5 (booking already created by `reserve_seat` on Continue)
