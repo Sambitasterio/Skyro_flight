@@ -9,6 +9,16 @@ export function formatInr(amount: number): string {
   }).format(amount);
 }
 
+/** Compact price for date strip chips (e.g. ₹4.5K). */
+export function formatInrCompact(amount: number): string {
+  if (amount >= 1000) {
+    const k = amount / 1000;
+    const text = k >= 10 ? k.toFixed(0) : k.toFixed(1);
+    return `₹${text}K`;
+  }
+  return formatInr(amount);
+}
+
 export function formatFlightTime(iso: string): string {
   return new Intl.DateTimeFormat("en-IN", {
     hour: "2-digit",

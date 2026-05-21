@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 
 import { AIRPORTS, findAirport, resolveAirportInput } from "@/lib/airports";
 import { buildFlightsSearchUrl } from "@/lib/search/build-flights-url";
 import { useFlightStore } from "@/store/useFlightStore";
-import type { CabinClass, TripType } from "@/types/flight";
+import type { CabinClass, SearchQuery, TripType } from "@/types/flight";
 
 const TRIP_TYPES: { value: TripType; label: string }[] = [
   { value: "oneway", label: "One Way" },
@@ -24,9 +24,33 @@ const INTERACTIVE =
 
 interface FlightSearchCardProps {
   className?: string;
+  /** Pre-fill fields (e.g. current results search). */
+  seedQuery?: SearchQuery;
+  /** Custom navigation; default pushes to `/flights`. */
+  onSubmitQuery?: (query: SearchQuery) => void;
+  onSubmitted?: () => void;
+  submitLabel?: string;
 }
 
-export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
+function queryToFormState(query: SearchQuery) {
+  return {
+    originInput: query.origin,
+    destInput: query.destination,
+    departDate: query.departDate,
+    returnDate: query.returnDate,
+    tripType: query.tripType,
+    passengerCount: query.passengerCount,
+    cabinClass: query.cabinClass,
+  };
+}
+
+export function FlightSearchCard({
+  className = "",
+  seedQuery,
+  onSubmitQuery,
+  onSubmitted,
+  submitLabel = "Search flights",
+}: FlightSearchCardProps) {
   const router = useRouter();
   const formId = useId();
   const listId = useId();
@@ -40,15 +64,26 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
   const storedQuery = useFlightStore((s) => s.searchQuery);
   const setSearchQuery = useFlightStore((s) => s.setSearchQuery);
 
-  const [originInput, setOriginInput] = useState(storedQuery.origin);
-  const [destInput, setDestInput] = useState(storedQuery.destination);
-  const [departDate, setDepartDate] = useState(storedQuery.departDate);
-  const [returnDate, setReturnDate] = useState(storedQuery.returnDate);
-  const [tripType, setTripType] = useState<TripType>(storedQuery.tripType);
-  const [passengerCount, setPassengerCount] = useState(
-    storedQuery.passengerCount,
-  );
-  const [cabinClass, setCabinClass] = useState<CabinClass>(storedQuery.cabinClass);
+  const baseQuery = seedQuery ?? storedQuery;
+  const [originInput, setOriginInput] = useState(baseQuery.origin);
+  const [destInput, setDestInput] = useState(baseQuery.destination);
+  const [departDate, setDepartDate] = useState(baseQuery.departDate);
+  const [returnDate, setReturnDate] = useState(baseQuery.returnDate);
+  const [tripType, setTripType] = useState<TripType>(baseQuery.tripType);
+  const [passengerCount, setPassengerCount] = useState(baseQuery.passengerCount);
+  const [cabinClass, setCabinClass] = useState<CabinClass>(baseQuery.cabinClass);
+
+  useEffect(() => {
+    if (!seedQuery) return;
+    const next = queryToFormState(seedQuery);
+    setOriginInput(next.originInput);
+    setDestInput(next.destInput);
+    setDepartDate(next.departDate);
+    setReturnDate(next.returnDate);
+    setTripType(next.tripType);
+    setPassengerCount(next.passengerCount);
+    setCabinClass(next.cabinClass);
+  }, [seedQuery]);
   const [paxOpen, setPaxOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -107,7 +142,12 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
     };
 
     setSearchQuery(query);
-    router.push(buildFlightsSearchUrl(query));
+    if (onSubmitQuery) {
+      onSubmitQuery(query);
+    } else {
+      router.push(buildFlightsSearchUrl(query));
+    }
+    onSubmitted?.();
   };
 
   const paxLabel = `${passengerCount} Adult${passengerCount > 1 ? "s" : ""}, ${
@@ -301,7 +341,7 @@ export function FlightSearchCard({ className = "" }: FlightSearchCardProps) {
           type="submit"
           className={`w-full min-h-[3rem] rounded-xl bg-gradient-to-r from-primary to-accent px-6 py-4 text-base font-bold text-primary-foreground shadow-lg transition hover:opacity-95 active:scale-[0.99] sm:min-h-[3.25rem] sm:text-lg ${INTERACTIVE}`}
         >
-          Search flights
+          {submitLabel}
         </button>
       </div>
     </form>

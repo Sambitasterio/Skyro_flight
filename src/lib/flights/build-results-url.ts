@@ -2,12 +2,16 @@ import type { CabinClass } from "@/types/flight";
 
 import type { FlightFilterState } from "./filter-params";
 import type { FlightsSearchParams } from "./parse-search-params";
-import type { FlightSortMode } from "./sort-flights";
+import type { FlightSortMode, SortTabMode } from "./sort-flights";
 
 export function buildFlightsResultsUrl(
   search: FlightsSearchParams,
   filters: FlightFilterState,
-  options?: { cabinClass?: CabinClass; sort?: FlightSortMode; departDate?: string },
+  options?: {
+    cabinClass?: CabinClass;
+    sort?: FlightSortMode | SortTabMode;
+    departDate?: string;
+  },
 ): string {
   const cabinClass = options?.cabinClass ?? search.cabinClass;
   const depart = options?.departDate ?? search.departDate;
@@ -20,8 +24,8 @@ export function buildFlightsResultsUrl(
     class: cabinClass,
   });
 
-  const sort = options?.sort ?? "price_asc";
-  if (sort !== "price_asc") {
+  const sort = options?.sort ?? "best";
+  if (sort !== "best") {
     params.set("sort", sort);
   }
 

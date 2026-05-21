@@ -17,15 +17,32 @@ function FilterSidebarSkeleton() {
   );
 }
 
+function SummaryBarSkeleton() {
+  return <div className="h-24 animate-pulse bg-indigo-950/80" aria-hidden />;
+}
+
+function DateStripSkeleton() {
+  return (
+    <div className="border-b border-border bg-surface/80 py-3" aria-hidden>
+      <div className="mx-auto flex max-w-7xl gap-2 px-4 sm:px-6">
+        {Array.from({ length: 5 }, (_, i) => (
+          <div
+            key={i}
+            className="h-14 w-20 shrink-0 animate-pulse rounded-xl bg-border"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function FlightsLoading() {
   return (
     <FlightsResultsLayout
+      topBar={<SummaryBarSkeleton />}
+      dateStrip={<DateStripSkeleton />}
       header={
-        <div className="space-y-3" aria-busy="true" aria-label="Loading search summary">
-          <div className="h-4 w-28 animate-pulse rounded bg-border" />
-          <div className="h-8 w-64 max-w-full animate-pulse rounded bg-border" />
-          <div className="h-4 w-full max-w-md animate-pulse rounded bg-border" />
-        </div>
+        <div className="h-8 w-48 animate-pulse rounded bg-border" aria-hidden />
       }
       sidebar={<FilterSidebarSkeleton />}
       results={<FlightResultsSkeleton count={3} />}

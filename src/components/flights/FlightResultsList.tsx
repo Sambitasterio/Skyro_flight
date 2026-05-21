@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import {
   cheapestNonStopFlightId,
   parseSortMode,
+  parseSortTab,
   sortFlights,
 } from "@/lib/flights/sort-flights";
 import type { CabinClass } from "@/types/flight";
@@ -24,6 +25,7 @@ export function FlightResultsList({
 }: FlightResultsListProps) {
   const searchParams = useSearchParams();
   const sort = parseSortMode(searchParams.get("sort") ?? undefined);
+  const sortTab = parseSortTab(searchParams.get("sort") ?? undefined);
 
   const sorted = useMemo(
     () => sortFlights(flights, sort, cabinClass),
@@ -41,8 +43,10 @@ export function FlightResultsList({
         <li key={flight.id}>
           <FlightCard
             flight={flight}
-            defaultCabin={cabinClass}
-            bestValue={flight.id === bestValueId && sort === "price_asc"}
+            searchCabinClass={cabinClass}
+            bestValue={
+              flight.id === bestValueId && sortTab === "cheapest"
+            }
           />
         </li>
       ))}

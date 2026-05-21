@@ -5,9 +5,9 @@ import { useMemo } from "react";
 
 import { buildDateStripOptions } from "@/lib/flights/date-strip";
 import { buildFlightsResultsUrl } from "@/lib/flights/build-results-url";
-import { formatInr } from "@/lib/flights/format";
+import { formatInrCompact } from "@/lib/flights/format";
 import { parseFlightFilterParams } from "@/lib/flights/filter-params";
-import { parseSortMode } from "@/lib/flights/sort-flights";
+import { parseSortTab, type SortTabMode } from "@/lib/flights/sort-flights";
 import type { FlightsSearchParams } from "@/lib/flights/parse-search-params";
 import type { FlightRow } from "@/types/database";
 
@@ -23,7 +23,7 @@ export function FlightDateStrip({ search, flights }: FlightDateStripProps) {
     () => parseFlightFilterParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
   );
-  const sort = parseSortMode(searchParams.get("sort") ?? undefined);
+  const sort = parseSortTab(searchParams.get("sort") ?? undefined) as SortTabMode;
 
   const options = useMemo(
     () => buildDateStripOptions(search.departDate, flights, search.cabinClass),
@@ -55,13 +55,10 @@ export function FlightDateStrip({ search, flights }: FlightDateStripProps) {
             >
               <span className="text-xs font-medium opacity-90">{opt.label}</span>
               <span className="text-sm font-bold tabular-nums">
-                {opt.price !== null ? formatInr(opt.price) : "—"}
+                {opt.price !== null ? formatInrCompact(opt.price) : "—"}
               </span>
             </button>
           ))}
-          <span className="shrink-0 rounded-xl border border-dashed border-border px-3 py-2 text-xs text-muted">
-            Flexible dates · Phase 4+
-          </span>
         </div>
       </div>
     </div>

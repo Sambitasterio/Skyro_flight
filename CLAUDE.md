@@ -78,7 +78,7 @@ SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
 | `/auth/login` | Public | Email login |
 | `/auth/signup` | Public | Email signup |
 
-**Query params (search):** `from`, `to`, `depart`, `return`, `pax`, `class`, `trip` (oneway|round)
+**Query params (`/flights`):** `from`, `to`, `depart`, `return`, `pax`, `class`, `trip` · filters: `minPrice`, `maxPrice`, `stops`, `time` · `sort` (`best`|`cheapest`|`fastest`)
 
 **Middleware:** refresh session · protect `/bookings`, `/book`, `/booking`, `/flights/*/seats`
 
@@ -241,7 +241,7 @@ CREATE TRIGGER bookings_cancel_window
 | Field | Persisted? | Notes |
 |---|---|---|
 | `searchQuery` | ✅ Yes (Phase 3.2) | from/to/dates/pax/class — wired on landing search |
-| `selectedFlight` | ✅ Yes | flight object or id |
+| `selectedFlight` | ✅ Yes (Phase 4.3) | full `SelectedFlight` on card Select |
 | `selectedSeat` | ✅ Yes | seat id + number |
 | `bookingStep` | ✅ Yes | 1–4 progress |
 | `passengerForm` | ❌ **No** | Never persist passport — optional: name only in memory |
@@ -312,17 +312,18 @@ Complete these **once**, before Phase 0 begins. The agent will not scaffold the 
 
 ## Frontend Design Gate — ✅ Phase 3 complete
 
-**Phases 3–7** use assets in **`design/`**. Phase 3 landing is **done**; Phase 4+ still follow subsection pauses.
+**Phases 3–7** use assets in **`design/`**. Phase 3 landing and Phase 4 results are **done**; Phase 5+ follow subsection pauses.
 
 ### Status: ✅ Built (May 2026)
 
 - References in `design/references/` · route photos in `design/destinations/` → copied to `public/hero/`
-- **Skyscanner-first** dark hero + **ixigo-style** floating white search card
+- **Skyscanner-first** dark hero + **ixigo-style** floating white search card (landing)
+- **Results page** uses Skyscanner-style summary bar · date strip · Best/Cheapest/Fastest tabs · white cards
 - User preference locked: no light theme · destination slideshow · no manual slide dots
 
-### Before Phase 4 (agent)
+### Before Phase 5 (agent)
 
-No frontend gate repeat. Reply **`Phase 4 proceed`** to start `/flights` results.
+Reply **`Phase 5 ready`** after enabling Realtime on `seats` (see Phase 5 checklist).
 
 ---
 
@@ -424,7 +425,7 @@ Test: [how to verify in browser/terminal, if applicable]
 | *"proceed to Phase 5"* | Finish current phase recap, wait for Phase 5 pre-checklist |
 | *"fix …"* | Address feedback before continuing |
 
-**Frontend gate:** Phase 3 complete — no repeat before Phase 4. Assets live in `design/`.
+**Frontend gate:** Phases 3–4 complete. Assets live in `design/`. Phase 5+ uses same Skyscanner references for seat map UX.
 
 **Do not:** Batch 4.1 + 4.2 + 4.3 in one response unless you explicitly say *"do 4.1 through 4.3"* or *"no pauses"*.
 
@@ -440,12 +441,12 @@ Test: [how to verify in browser/terminal, if applicable]
 | **Phase 0** | Project Scaffolding | ✅ Done | Paste Supabase keys into `.env.local` · run `npm run dev` to verify |
 | **Phase 1** | Database Setup | ✅ Done | Migrations + seed verified · 8 flights · 2016 seats · test user `xyz123@gmail.com` |
 | **Phase 2** | Auth Setup | ✅ Done | Test login at `/auth/login` · protected `/bookings` redirects when logged out |
-| **Phase 3** | Landing Page | ✅ Done | Landing reviewed at `/` · search → `/flights?...` · reply *"Phase 4 proceed"* for results page |
-| **Phase 4** | Flight Search Results | ⬜ Not Started | Optional: note any filter/sort preferences from reference sites · smoke-test search in browser after agent ships page |
+| **Phase 3** | Landing Page | ✅ Done | Landing at `/` · search → `/flights?...` |
+| **Phase 4** | Flight Search Results | ✅ Done | Smoke-test `/flights` · filters · sort tabs · inline modify search · **Phase 5 ready** for seat map |
 | **Phase 5** | Seat Map + Realtime | ⬜ Not Started | Supabase → Database → Replication → add **`seats`** to `supabase_realtime` publication |
 | **Phase 6** | Booking Flow | ⬜ Not Started | End-to-end test booking with test user · verify PNR appears on confirmation page |
 | **Phase 7** | My Bookings | ⬜ Not Started | Test reschedule + cancel flows · confirm cancel blocked < 2 hours before departure (use seed flight times) |
-| **Phase 8** | Zustand Stores | 🔄 Partial | `useFlightStore` searchQuery persisted (Phase 3) · finalize partialize + passport exclusion in Phase 6/8 |
+| **Phase 8** | Zustand Stores | 🔄 Partial | `searchQuery` + `selectedFlight` persisted (Phases 3–4) · finalize passport `partialize` in Phase 6/8 |
 | **Phase 9** | PWA (Bonus) | ⬜ Not Started | Chrome Lighthouse audit → screenshot → save to `docs/lighthouse.png` · test install on mobile browser |
 | **Phase 10** | Polish + Deploy | ⬜ Not Started | Create **public** GitHub repo → push → connect Vercel → add 3 env vars → verify production URL · add live URL to README |
 
@@ -557,7 +558,7 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 ---
 ## PHASE 3 — Frontend: Landing Page (`/`) — ✅ COMPLETE
 
-> **Phase pause:** Done. Recap below. **Next:** Phase 4 — reply *"Phase 4 proceed"*.
+> **Phase pause:** Done. **Next:** Phase 5 — reply *"Phase 5 ready"*.
 
 **Goal:** Full-screen hero with rotating destination photos, search-first landing, marketing sections below.
 
@@ -572,8 +573,6 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 | 3.5 | `landing/TrendingDestinations.tsx`, `lib/landing/trending-routes.ts` |
 | 3.6 | `StatsBar.tsx`, `WhySkyro.tsx`, `OffersSection.tsx` |
 | 3.7 | Skip link · a11y labels · mobile pax sheet · centered nav tabs |
-
-**Note:** `/flights` is still a **placeholder** until Phase 4 (shows query params only).
 
 ### 3.1 — Layout & Global Styles
 - [x] `src/app/layout.tsx` — Inter · metadata · skip link · `#main-content`
@@ -613,51 +612,64 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 - [x] **My Bookings** hidden until login · `/bookings` → login with gate message
 
 ---
-## PHASE 4 — Frontend: Flight Search Results (`/flights`)
+## PHASE 4 — Frontend: Flight Search Results (`/flights`) — ✅ COMPLETE
 
-> **Subsection pauses:** Agent completes **one** of 4.1–4.6 per checkpoint, then stops for your *"continue"* (see Agent Workflow).
+> **Phase pause:** Done. Recap below. **Next:** Phase 5 — reply *"Phase 5 ready"* (enable Realtime on `seats` first).
 
-**Goal:** Results list with filter sidebar, sort, and flight cards.
+**Goal:** Full `/flights` results experience — filters, sort, cards, server fetch, Skyscanner-style polish, inline modify search.
 
-> **⏸️ YOUR TURN — Before Phase 4 starts**
-> - [x] Phase 3 landing page reviewed in browser
-> - [ ] Optional: share a reference for flight results list / filter UI
-> - [ ] After agent ships: test search from home → `/flights?from=...&to=...`
->
-> **Reply *"Phase 4 proceed"* to start search results page.**
+**Design reference:** Skyscanner results screenshot — summary bar, date ribbon, Best/Cheapest/Fastest tabs, white cards (Skyro indigo, not competitor blue).
+
+### Deliverables (shipped)
+
+| Subsection | Key files |
+|---|---|
+| 4.1 | `app/flights/page.tsx`, `loading.tsx`, `FlightsResultsLayout.tsx`, `FlightResultsHeader.tsx`, `FlightResultsSkeleton.tsx` |
+| 4.2 | `FlightFilters.tsx`, `filter-params.ts`, `apply-filters.ts`, `build-results-url.ts` |
+| 4.3 | `FlightCard.tsx`, `FlightResultsList.tsx`, `pricing.ts`, `SelectedFlight` in store |
+| 4.4 | `sort-flights.ts`, `FlightSortTabs.tsx`, `search-flights.ts` (price filters) |
+| 4.5 | `load-flight-results.ts`, `app/api/flights/route.ts`, `useFlightResultsData.ts`, `fetch-flights-client.ts` |
+| 4.6 | `FlightsSearchSummaryBar.tsx`, `FlightDateStrip.tsx`, `FlightResultsToast.tsx`, `StickyMobileFilters.tsx` |
+| Post-4.6 | Inline **Modify search** on results page (`FlightSearchCard` in summary bar) |
+
+**Note:** `/flights/[id]/seats` is a **placeholder** until Phase 5.
 
 ### 4.1 — Page Layout
-- [ ] `src/app/flights/page.tsx` — read searchParams server-side
-- [ ] Two-column desktop: sidebar + results · single column mobile
-- [ ] `src/components/flights/FlightResultsHeader.tsx` — route summary · result count
-- [ ] Loading skeleton while fetching
+- [x] `src/app/flights/page.tsx` — `searchParams` server-side · `dynamic = "force-dynamic"`
+- [x] Two-column desktop: 260px sidebar + results · mobile filter sheet
+- [x] `FlightResultsHeader.tsx` — result count · flexible-date / filter hints
+- [x] `loading.tsx` + Suspense skeleton
 
 ### 4.2 — Filter Sidebar
-- [ ] `src/components/flights/FlightFilters.tsx` — price range slider
-- [ ] Stops: non-stop / 1-stop (if applicable in seed)
-- [ ] Class filter: economy / business / first
-- [ ] Airline/status filter (optional)
-- [ ] Mobile: filter bottom sheet
+- [x] `FlightFilters.tsx` — price range sliders (drag + URL sync)
+- [x] Stops: non-stop / 1-stop / 2+ (counts; seed = all non-stop)
+- [x] Departure time buckets · cabin class radios
+- [x] Skyro airline row (seed)
+- [x] Mobile bottom sheet · **Clear all filters**
 
 ### 4.3 — Flight Card Component
-- [ ] `src/components/flights/FlightCard.tsx` — airline/flight no · times · duration
-- [ ] Price from `base_price` + class multiplier
-- [ ] **Select** button → store flight in `useFlightStore` → navigate to seats
+- [x] `FlightCard.tsx` — airline · times · duration · cabin tabs with prices
+- [x] `lib/flights/pricing.ts` — class multipliers on `base_price`
+- [x] **Select →** `useFlightStore.selectedFlight` · `/flights/[id]/seats` (placeholder)
 
 ### 4.4 — Sort & Query Logic
-- [ ] Sort: price asc/desc · departure time · duration
-- [ ] `src/lib/flights/searchFlights.ts` — Supabase query with filters
-- [ ] Empty state when no results
+- [x] Sort tabs: Best · Cheapest · Fastest (`sort` URL param)
+- [x] `search-flights.ts` — Supabase fetch · server-side min/max price
+- [x] Empty states: no route · no filter match
 
 ### 4.5 — Server Data Fetching
-- [ ] Server Component fetch with anon client for public flight list
-- [ ] Pass initial data to client list for hydration
-- [ ] Re-fetch on filter change (client)
+- [x] Server load via `loadFlightResults` (anon client)
+- [x] `FlightsResultsPanel` hydrates from `initial` payload
+- [x] Client refetch via `GET /api/flights` when route/date/price/cabin URL changes
 
 ### 4.6 — UX Polish
-- [ ] Sticky filter bar on mobile scroll
-- [ ] Show selected class from search params on cards
-- [ ] Error toast if Supabase fetch fails
+- [x] `FlightsSearchSummaryBar` — indigo summary strip (Skyscanner-style)
+- [x] `FlightDateStrip` — horizontal date chips + compact prices
+- [x] `FlightSortTabs` — Best / Cheapest / Fastest
+- [x] White flight cards · **Search** badge on cabin from URL `class`
+- [x] Sticky mobile filters under navbar
+- [x] `FlightResultsToast` on fetch errors
+- [x] **Modify search** expands inline form (stays on `/flights`; keeps sort/filters)
 
 ---
 ## PHASE 5 — Frontend: Seat Selection (`/flights/[id]/seats`)

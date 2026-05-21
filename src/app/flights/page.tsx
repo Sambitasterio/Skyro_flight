@@ -4,13 +4,14 @@ import { Suspense } from "react";
 import { FlightsResultsPanel } from "@/components/flights/FlightsResultsPanel";
 import { FlightResultsSkeleton } from "@/components/flights/FlightResultsSkeleton";
 import { FlightsResultsLayout } from "@/components/flights/FlightsResultsLayout";
-import { parseFlightFilterParams } from "@/lib/flights/filter-params";
-import { parseFlightsSearchParams } from "@/lib/flights/parse-search-params";
-import { searchFlights } from "@/lib/flights/search-flights";
+import { loadFlightResults } from "@/lib/flights/load-flight-results";
 
 export const metadata: Metadata = {
   title: "Flight results",
 };
+
+/** Always read fresh search params + Supabase data (no static cache). */
+export const dynamic = "force-dynamic";
 
 interface FlightsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -32,12 +33,12 @@ function FilterSidebarSkeleton() {
 function FlightsPanelFallback() {
   return (
     <FlightsResultsLayout
+      topBar={<div className="h-24 animate-pulse bg-indigo-950/80" aria-hidden />}
+      dateStrip={
+        <div className="h-16 animate-pulse border-b border-border bg-surface/50" aria-hidden />
+      }
       header={
-        <div className="space-y-3" aria-busy="true">
-          <div className="h-4 w-28 animate-pulse rounded bg-border" />
-          <div className="h-8 w-64 animate-pulse rounded bg-border" />
-          <div className="h-4 w-96 max-w-full animate-pulse rounded bg-border" />
-        </div>
+        <div className="h-8 w-48 animate-pulse rounded bg-border" aria-hidden />
       }
       sidebar={<FilterSidebarSkeleton />}
       results={<FlightResultsSkeleton count={3} />}
@@ -47,30 +48,9 @@ function FlightsPanelFallback() {
 
 async function FlightsResultsContent({ searchParams }: FlightsPageProps) {
   const raw = await searchParams;
-  const params = parseFlightsSearchParams(raw);
-  const filters = parseFlightFilterParams(raw);
+  const initial = await loadFlightResults(raw);
 
-  let flights: Awaited<ReturnType<typeof searchFlights>>["flights"] = [];
-  let flexibleDate = false;
-  let fetchError: string | null = null;
-
-  try {
-    const result = await searchFlights(params, filters);
-    flights = result.flights;
-    flexibleDate = result.flexibleDate;
-  } catch (err) {
-    fetchError =
-      err instanceof Error ? err.message : "Could not load flights.";
-  }
-
-  return (
-    <FlightsResultsPanel
-      flights={flights}
-      search={params}
-      flexibleDate={flexibleDate}
-      fetchError={fetchError}
-    />
-  );
+  return <FlightsResultsPanel initial={initial} />;
 }
 
 export default function FlightsPage(props: FlightsPageProps) {

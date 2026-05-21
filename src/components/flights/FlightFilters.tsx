@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { buildFlightsResultsUrl } from "@/lib/flights/build-results-url";
-import { parseSortMode } from "@/lib/flights/sort-flights";
+import { parseSortTab } from "@/lib/flights/sort-flights";
 import {
   STOP_OPTIONS,
   TIME_OPTIONS,
@@ -51,7 +51,7 @@ export function FlightFilters({
   const sliderMin = filters.minPrice ?? priceMin;
   const sliderMax = filters.maxPrice ?? priceMax;
 
-  const sort = parseSortMode(searchParams.get("sort") ?? undefined);
+  const sort = parseSortTab(searchParams.get("sort") ?? undefined);
 
   const pushFilters = useCallback(
     (next: FlightFilterState, cabin?: CabinClass) => {
