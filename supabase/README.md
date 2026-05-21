@@ -11,7 +11,8 @@ Run these in the **Supabase SQL Editor** in order. Use **Primary Database** + ro
 | 3 | `migrations/003_rls_policies.sql` | Public read on flights/seats; owner policies |
 | 4 | `migrations/004_rpcs.sql` | `reserve_seat`, `cancel_booking` |
 | 5 | `migrations/005_triggers.sql` | 2-hour cancellation trigger |
-| 6 | `seed.sql` | Flights, seat maps, test auth user |
+| 6 | `migrations/006_rpc_reschedule_booking.sql` | `reschedule_booking` (atomic seat swap) |
+| 7 | `seed.sql` | Flights, seat maps, test auth user |
 
 ## Test account (seed)
 
@@ -52,5 +53,6 @@ After Phase 5 starts, enable Realtime on the **`seats`** table:
 
 - `reserve_seat(flight_id, seat_id, user_id)` — locks seat, creates booking + PNR
 - `cancel_booking(booking_id, user_id)` — cancels if ≥ 2h before departure, frees seat
+- `reschedule_booking(booking_id, new_flight_id, new_seat_id, user_id)` — same route only, swaps seats, records fee
 
 Both require an **authenticated** Supabase session (`auth.uid()` must match `user_id`).

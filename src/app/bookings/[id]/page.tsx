@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { BookingDetailPage } from "@/components/bookings/BookingDetailPage";
+import { loadAlternateFlights } from "@/lib/bookings/load-alternate-flights";
 import { loadBookingById } from "@/lib/bookings/load-booking-by-id";
 import { createClient } from "@/lib/supabase/server";
 
@@ -50,5 +51,13 @@ export default async function BookingDetailRoute({
     );
   }
 
-  return <BookingDetailPage booking={booking} />;
+  const alternateFlights = await loadAlternateFlights(
+    booking.flight.origin,
+    booking.flight.destination,
+    booking.flight.id,
+  );
+
+  return (
+    <BookingDetailPage booking={booking} alternateFlights={alternateFlights} />
+  );
 }

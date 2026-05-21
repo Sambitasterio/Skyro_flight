@@ -186,11 +186,11 @@ UNIQUE (`flight_id`, `seat_number`). Enable **Realtime** publication on this tab
 - Set linked seat `is_available = true`
 - `RETURN` updated booking
 
-### `reschedule_booking` (optional RPC or app-level transaction)
+### `reschedule_booking(p_booking_id, p_new_flight_id, p_new_seat_id, p_user_id)` — ✅ Phase 7.3
 
-- Insert `reschedules` row
-- Update booking `flight_id` + `seat_id` + `status = 'rescheduled'`
-- Free old seat · reserve new seat
+- Same route only (origin + destination must match)
+- Blocks within 2 hours of departure
+- Free old seat · lock new seat · insert `reschedules` · `status = 'rescheduled'` · update `total_price`
 
 ---
 
@@ -314,7 +314,7 @@ Complete these **once**, before Phase 0 begins. The agent will not scaffold the 
 
 ## Frontend Design Gate — ✅ Phase 3 complete
 
-**Phases 3–7** use assets in **`design/`**. Phases 3–6 are **done**; Phase 7+ follow subsection pauses.
+**Phases 3–7** use assets in **`design/`**. Phases 3–6 and **Phase 7.1–7.3** are **done**; Phase 7.4+ follow subsection pauses.
 
 ### Status: ✅ Built (May 2026)
 
@@ -323,9 +323,9 @@ Complete these **once**, before Phase 0 begins. The agent will not scaffold the 
 - **Results page** uses Skyscanner-style summary bar · date strip · Best/Cheapest/Fastest tabs · white cards
 - User preference locked: no light theme · destination slideshow · no manual slide dots
 
-### Before Phase 7 (agent)
+### Before Phase 7.4 (agent)
 
-Reply **`Phase 7 proceed`** when you have at least one test booking (see Phase 7 checklist).
+Reply **`continue`** for cancel booking flow. Run **`006_rpc_reschedule_booking.sql`** in Supabase if reschedule is not yet applied (see `supabase/README.md`).
 
 ---
 
@@ -447,7 +447,7 @@ Test: [how to verify in browser/terminal, if applicable]
 | **Phase 4** | Flight Search Results | ✅ Done | Smoke-test `/flights` · filters · sort tabs · inline modify search · **Phase 5 ready** for seat map |
 | **Phase 5** | Seat Map + Realtime | ✅ Done | Realtime on **`seats`** enabled · test map + Continue → `/book/[flightId]` |
 | **Phase 6** | Booking Flow | ✅ Done | End-to-end book → PNR confirmation · **Phase 7 proceed** for My Bookings |
-| **Phase 7** | My Bookings | 🔄 In Progress | At least one booking from Phase 6 · **continue** for 7.2 detail page |
+| **Phase 7** | My Bookings | ✅ Done | Run migration **`006`** for reschedule if not applied |
 | **Phase 8** | Zustand Stores | 🔄 Partial | `searchQuery` · `selectedFlight` · `selectedSeat` · `activeBooking` persisted · finalize passport `partialize` in Phase 6/8 |
 | **Phase 9** | PWA (Bonus) | ⬜ Not Started | Chrome Lighthouse audit → screenshot → save to `docs/lighthouse.png` · test install on mobile browser |
 | **Phase 10** | Polish + Deploy | ⬜ Not Started | Create **public** GitHub repo → push → connect Vercel → add 3 env vars → verify production URL · add live URL to README |
@@ -504,6 +504,7 @@ Test: [how to verify in browser/terminal, if applicable]
 - [x] **`003_rls_policies.sql`** — public read on flights/seats; owner policies on bookings/passengers/reschedules
 - [x] **`004_rpcs.sql`** — `reserve_seat`, `cancel_booking` (security definer)
 - [x] **`005_triggers.sql`** — `check_cancel_window` trigger on bookings
+- [x] **`006_rpc_reschedule_booking.sql`** — `reschedule_booking` (run in SQL Editor when starting 7.3)
 - [x] **`seed.sql`** — flights, seats, test auth user (`xyz123@gmail.com` / `123456`)
 - [x] Document migration order in `supabase/README.md`
 
@@ -517,7 +518,8 @@ supabase/
     003_rls_policies.sql
     004_rpcs.sql
     005_triggers.sql
-  seed.sql
+    006_rpc_reschedule_booking.sql
+    seed.sql
 ```
 
 **Verification queries (SQL Editor):**
@@ -775,36 +777,41 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 
 **Goal:** Dashboard to view, reschedule, and cancel bookings.
 
-> **⏸️ YOUR TURN — Before Phase 7 starts**
-> - [ ] At least one **confirmed booking** exists (from Phase 6 test)
-> - [ ] Plan to test: reschedule to another flight, cancel a booking **outside** 2-hour window
-> - [ ] Optional: adjust seed flight `departs_at` if you need to test the 2-hour cancel block
->
-> **Reply *"Phase 7 proceed"* when you have a test booking.**
+> **Phase 7 complete.** Reply **`Phase 8 proceed`** to finalize Zustand stores.
+
+| Subsection | Key files |
+|---|---|
+| 7.1 | `app/bookings/page.tsx`, `MyBookingsPage.tsx`, `BookingCard.tsx`, `load-user-bookings.ts`, `booking-filters.ts` |
+| 7.2 | `app/bookings/[id]/page.tsx`, `BookingDetailPage.tsx`, `load-booking-by-id.ts`, `RescheduleHistory.tsx` |
+| 7.3 | `006_rpc_reschedule_booking.sql`, `RescheduleModal.tsx`, `app/bookings/actions.ts`, `reschedule-messages.ts` |
+| 7.4 | `CancelBookingModal.tsx`, `cancelBooking` action, `cancel-messages.ts` |
+
+**Post-7.1 UX:** Responsive horizontal `BookingCard` on desktop · stacked on mobile · whole card clickable.
 
 ### 7.1 — My Bookings Page
 - [x] `app/bookings/page.tsx` — auth redirect · `loadUserBookings`
 - [x] `MyBookingsPage` — tabs All · Upcoming · Past · Cancelled (with counts)
-- [x] `BookingCard` · `BookingStatusBadge` — route · date · PNR · seat · passenger · total
+- [x] `BookingCard` · `BookingStatusBadge` — responsive horizontal layout · hover/active states
 - [x] Link **View details** → `/bookings/[id]` · empty state · `loading.tsx`
 
 ### 7.2 — Booking Detail
-- [x] `app/bookings/[id]/page.tsx` — auth · `loadBookingById`
-- [x] `BookingDetailPage` — horizontal itinerary · seat · passenger · total
+- [x] `app/bookings/[id]/page.tsx` — auth · `loadBookingById` · `loadAlternateFlights`
+- [x] `BookingDetailPage` — horizontal itinerary · seat · passenger · total · Copy PNR
 - [x] `RescheduleHistory` — from `reschedules` table when present
-- [x] Manage section — disabled Reschedule/Cancel + 2h window hint (wired in 7.3–7.4)
+- [x] Manage section — Reschedule opens modal (7.3) · Cancel placeholder until 7.4
 
 ### 7.3 — Reschedule Flow
-- [ ] `src/components/bookings/RescheduleModal.tsx` — pick alternate flight (same route or flexible)
-- [ ] Fee display if new price > old
-- [ ] Update booking + insert `reschedules` row · swap seats
-- [ ] Status → `rescheduled`
+- [x] `migrations/006_rpc_reschedule_booking.sql` — atomic free old seat · lock new · insert `reschedules`
+- [x] `RescheduleModal` — same-route flights · pick seat in same cabin class
+- [x] Fee preview (+₹ difference) · review + confirm step
+- [x] `rescheduleBooking` server action (`app/bookings/actions.ts`) — helpers in `reschedule-messages.ts` (not exported from `"use server"` file)
+- [x] `router.refresh()` after success · status `rescheduled` · history section updates
 
 ### 7.4 — Cancel Flow
-- [ ] Confirm dialog with refund copy (static OK)
-- [ ] Call `cancel_booking` RPC
-- [ ] Handle trigger error: *"Cannot cancel within 2 hours"* — show user-friendly message
-- [ ] Refresh list after cancel
+- [x] Confirm dialog with refund copy (static OK)
+- [x] Call `cancel_booking` RPC
+- [x] Handle trigger error: *"Cannot cancel within 2 hours"* — show user-friendly message
+- [x] Refresh list after cancel
 
 ---
 ## PHASE 8 — Zustand Store (Task 04)

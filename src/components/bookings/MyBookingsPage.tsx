@@ -46,7 +46,7 @@ export function MyBookingsPage({ bookings }: MyBookingsPageProps) {
           My Bookings
         </h1>
         <p className="mt-1 text-sm text-muted">
-          Tap a trip for details · reschedule and cancel coming next.
+          Tap a trip for details · reschedule or cancel from the booking page.
         </p>
       </header>
 

@@ -1,14 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 import { BookingStatusBadge } from "@/components/bookings/BookingStatusBadge";
 import { RescheduleHistory } from "@/components/bookings/RescheduleHistory";
+import { CancelBookingModal } from "@/components/bookings/CancelBookingModal";
+import { RescheduleModal } from "@/components/bookings/RescheduleModal";
 import { CopyPnrButton } from "@/components/booking/CopyPnrButton";
 import { formatStoredDocument } from "@/lib/booking/format-document";
 import { isWithinCancellationWindow } from "@/lib/bookings/booking-filters";
 import { formatBookedAt } from "@/lib/bookings/format-booking";
 import type { BookingDetailData } from "@/lib/bookings/load-booking-by-id";
+import type { FlightRow } from "@/types/database";
 import {
   airportLabel,
   cabinClassLabel,
@@ -20,18 +24,25 @@ import {
 
 interface BookingDetailPageProps {
   booking: BookingDetailData;
+  alternateFlights: FlightRow[];
 }
 
-export function BookingDetailPage({ booking }: BookingDetailPageProps) {
+export function BookingDetailPage({
+  booking,
+  alternateFlights,
+}: BookingDetailPageProps) {
+  const [rescheduleOpen, setRescheduleOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
   const { flight, seat, passenger } = booking;
   const doc = formatStoredDocument(passenger.passport_no);
   const duration = formatDuration(flight.departs_at, flight.arrives_at);
+  const withinTwoHours = isWithinCancellationWindow(flight.departs_at);
   const cancelBlocked =
-    booking.status !== "cancelled" &&
-    isWithinCancellationWindow(flight.departs_at);
+    booking.status !== "cancelled" && withinTwoHours;
   const isUpcoming =
     booking.status !== "cancelled" &&
     new Date(flight.departs_at).getTime() > Date.now();
+  const canReschedule = isUpcoming && !withinTwoHours;
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10">
@@ -157,16 +168,18 @@ export function BookingDetailPage({ booking }: BookingDetailPageProps) {
           <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">
             Manage booking
           </h2>
-          <p className="mt-2 text-sm text-muted">
-            Reschedule and cancel ship in Phase 7.3–7.4.
-          </p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <button
               type="button"
-              disabled={!isUpcoming || booking.status === "cancelled"}
+              disabled={!canReschedule}
               title={
-                !isUpcoming ? "Past flights cannot be rescheduled" : undefined
+                withinTwoHours
+                  ? "Cannot reschedule within 2 hours of departure"
+                  : !isUpcoming
+                    ? "Past flights cannot be rescheduled"
+                    : undefined
               }
+              onClick={() => setRescheduleOpen(true)}
               className="rounded-xl border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition enabled:hover:border-primary/50 enabled:hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
             >
               Reschedule
@@ -179,16 +192,21 @@ export function BookingDetailPage({ booking }: BookingDetailPageProps) {
               title={
                 cancelBlocked
                   ? "Cannot cancel within 2 hours of departure"
-                  : undefined
+                  : booking.status === "cancelled"
+                    ? "Already cancelled"
+                    : !isUpcoming
+                      ? "Past flights cannot be cancelled"
+                      : undefined
               }
+              onClick={() => setCancelOpen(true)}
               className="rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-400 transition enabled:hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Cancel booking
             </button>
           </div>
-          {cancelBlocked && booking.status !== "cancelled" ? (
+          {withinTwoHours && booking.status !== "cancelled" ? (
             <p className="mt-3 text-xs text-amber-400">
-              Cancellation is not allowed within 2 hours of departure.
+              Reschedule and cancel are not allowed within 2 hours of departure.
             </p>
           ) : null}
         </section>
@@ -204,6 +222,19 @@ export function BookingDetailPage({ booking }: BookingDetailPageProps) {
           View confirmation page →
         </Link>
       </div>
+
+      <RescheduleModal
+        booking={booking}
+        alternateFlights={alternateFlights}
+        open={rescheduleOpen}
+        onClose={() => setRescheduleOpen(false)}
+      />
+
+      <CancelBookingModal
+        booking={booking}
+        open={cancelOpen}
+        onClose={() => setCancelOpen(false)}
+      />
     </main>
   );
 }
