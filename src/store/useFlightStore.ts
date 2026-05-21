@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import type { ActiveBooking } from "@/types/booking";
 import type {
   BookingStep,
   CabinClass,
@@ -43,11 +44,13 @@ interface FlightState {
   searchQuery: SearchQuery;
   selectedFlight: SelectedFlight | null;
   selectedSeat: SelectedSeat | null;
+  activeBooking: ActiveBooking | null;
   bookingStep: BookingStep;
   passengerForm: PassengerForm;
   setSearchQuery: (query: Partial<SearchQuery>) => void;
   setSelectedFlight: (flight: SelectedFlight | null) => void;
   setSelectedSeat: (seat: SelectedSeat | null) => void;
+  setActiveBooking: (booking: ActiveBooking | null) => void;
   setBookingStep: (step: BookingStep) => void;
   setPassengerForm: (form: Partial<PassengerForm>) => void;
   resetBooking: () => void;
@@ -66,6 +69,7 @@ export const useFlightStore = create<FlightState>()(
       searchQuery: defaultSearchQuery,
       selectedFlight: null,
       selectedSeat: null,
+      activeBooking: null,
       bookingStep: 1,
       passengerForm: defaultPassengerForm,
       setSearchQuery: (query) =>
@@ -81,6 +85,7 @@ export const useFlightStore = create<FlightState>()(
               : state.selectedSeat,
         })),
       setSelectedSeat: (selectedSeat) => set({ selectedSeat }),
+      setActiveBooking: (activeBooking) => set({ activeBooking }),
       setBookingStep: (bookingStep) => set({ bookingStep }),
       setPassengerForm: (form) =>
         set((state) => ({
@@ -90,6 +95,7 @@ export const useFlightStore = create<FlightState>()(
         set({
           selectedFlight: null,
           selectedSeat: null,
+          activeBooking: null,
           bookingStep: 1,
           passengerForm: defaultPassengerForm,
         }),
@@ -100,6 +106,7 @@ export const useFlightStore = create<FlightState>()(
         searchQuery: state.searchQuery,
         selectedFlight: state.selectedFlight,
         selectedSeat: state.selectedSeat,
+        activeBooking: state.activeBooking,
         bookingStep: state.bookingStep,
       }),
     },

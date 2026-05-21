@@ -242,13 +242,14 @@ CREATE TRIGGER bookings_cancel_window
 |---|---|---|
 | `searchQuery` | ✅ Yes (Phase 3.2) | from/to/dates/pax/class — wired on landing search |
 | `selectedFlight` | ✅ Yes (Phase 4.3) | full `SelectedFlight` on card Select |
-| `selectedSeat` | ✅ Yes | seat id + number |
+| `selectedSeat` | ✅ Yes (Phase 5.3) | id · seat_number · class · extra_fee · flight_id |
+| `activeBooking` | ✅ Yes (Phase 5.5) | id · pnr_code · flight_id · seat_id · total_price — set after `reserve_seat` on Continue |
 | `bookingStep` | ✅ Yes | 1–4 progress |
 | `passengerForm` | ❌ **No** | Never persist passport — optional: name only in memory |
 
-**Actions:** `setSearchQuery`, `setSelectedFlight`, `setSelectedSeat`, `setBookingStep`, `resetBooking`
+**Actions:** `setSearchQuery`, `setSelectedFlight`, `setSelectedSeat`, `setActiveBooking`, `setBookingStep`, `resetBooking`
 
-**Optimistic seat:** mark selected in store immediately · revert if RPC fails
+**Seat selection (Phase 5):** tap → `selectedSeat` in store (optimistic UI) · **Continue** → `reserve_seat` RPC · on failure clear selection + refresh map
 
 ### `useUserStore` (auth + cache)
 
@@ -267,6 +268,7 @@ partialize: (state) => ({
   searchQuery: state.searchQuery,
   selectedFlight: state.selectedFlight,
   selectedSeat: state.selectedSeat,
+  activeBooking: state.activeBooking,
   bookingStep: state.bookingStep,
 }),
 ```
@@ -312,7 +314,7 @@ Complete these **once**, before Phase 0 begins. The agent will not scaffold the 
 
 ## Frontend Design Gate — ✅ Phase 3 complete
 
-**Phases 3–7** use assets in **`design/`**. Phase 3 landing and Phase 4 results are **done**; Phase 5+ follow subsection pauses.
+**Phases 3–7** use assets in **`design/`**. Phases 3–5 are **done**; Phase 6+ follow subsection pauses.
 
 ### Status: ✅ Built (May 2026)
 
@@ -321,9 +323,9 @@ Complete these **once**, before Phase 0 begins. The agent will not scaffold the 
 - **Results page** uses Skyscanner-style summary bar · date strip · Best/Cheapest/Fastest tabs · white cards
 - User preference locked: no light theme · destination slideshow · no manual slide dots
 
-### Before Phase 5 (agent)
+### Before Phase 6 (agent)
 
-Reply **`Phase 5 ready`** after enabling Realtime on `seats` (see Phase 5 checklist).
+Reply **`Phase 6 proceed`** when ready for passenger form + confirmation (see Phase 6 checklist).
 
 ---
 
@@ -443,10 +445,10 @@ Test: [how to verify in browser/terminal, if applicable]
 | **Phase 2** | Auth Setup | ✅ Done | Test login at `/auth/login` · protected `/bookings` redirects when logged out |
 | **Phase 3** | Landing Page | ✅ Done | Landing at `/` · search → `/flights?...` |
 | **Phase 4** | Flight Search Results | ✅ Done | Smoke-test `/flights` · filters · sort tabs · inline modify search · **Phase 5 ready** for seat map |
-| **Phase 5** | Seat Map + Realtime | ⬜ Not Started | Supabase → Database → Replication → add **`seats`** to `supabase_realtime` publication |
-| **Phase 6** | Booking Flow | ⬜ Not Started | End-to-end test booking with test user · verify PNR appears on confirmation page |
+| **Phase 5** | Seat Map + Realtime | ✅ Done | Realtime on **`seats`** enabled · test map + Continue → `/book/[flightId]` |
+| **Phase 6** | Booking Flow | ⬜ Not Started | Log in · complete seat + Continue once · reply **`Phase 6 proceed`** |
 | **Phase 7** | My Bookings | ⬜ Not Started | Test reschedule + cancel flows · confirm cancel blocked < 2 hours before departure (use seed flight times) |
-| **Phase 8** | Zustand Stores | 🔄 Partial | `searchQuery` + `selectedFlight` persisted (Phases 3–4) · finalize passport `partialize` in Phase 6/8 |
+| **Phase 8** | Zustand Stores | 🔄 Partial | `searchQuery` · `selectedFlight` · `selectedSeat` · `activeBooking` persisted · finalize passport `partialize` in Phase 6/8 |
 | **Phase 9** | PWA (Bonus) | ⬜ Not Started | Chrome Lighthouse audit → screenshot → save to `docs/lighthouse.png` · test install on mobile browser |
 | **Phase 10** | Polish + Deploy | ⬜ Not Started | Create **public** GitHub repo → push → connect Vercel → add 3 env vars → verify production URL · add live URL to README |
 
@@ -632,7 +634,7 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 | 4.6 | `FlightsSearchSummaryBar.tsx`, `FlightDateStrip.tsx`, `FlightResultsToast.tsx`, `StickyMobileFilters.tsx` |
 | Post-4.6 | Inline **Modify search** on results page (`FlightSearchCard` in summary bar) |
 
-**Note:** `/flights/[id]/seats` is a **placeholder** until Phase 5.
+**Note:** `/flights/[id]/seats` — full seat map shipped in **Phase 5**.
 
 ### 4.1 — Page Layout
 - [x] `src/app/flights/page.tsx` — `searchParams` server-side · `dynamic = "force-dynamic"`
@@ -674,43 +676,48 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 ---
 ## PHASE 5 — Frontend: Seat Selection (`/flights/[id]/seats`)
 
-> **Subsection pauses:** Agent completes **one** of 5.1–5.5 per checkpoint, then stops for your *"continue"* (see Agent Workflow).
+> **Phase pause:** Done (May 2026). **Next:** Phase 6 — reply *"Phase 6 proceed"*.
 
 **Goal:** Visual seat map with live Realtime updates and class zones.
 
-> **⏸️ YOUR TURN — Before Phase 5 starts**
-> - [ ] Supabase → **Database** → **Replication** → `supabase_realtime` → enable **`seats`** table
-> - [ ] Optional: open two browser windows to test live seat updates later
->
-> **Reply *"Phase 5 ready"* after Realtime is enabled on `seats`.**
+**Design choice (locked):** `reserve_seat` runs on **Continue** (5.5), not on seat tap. Seat is locked in DB before passenger form; Phase 6 adds passenger row + confirmation UI for the existing `activeBooking`.
+
+| Subsection | Key files |
+|---|---|
+| 5.1 | `app/flights/[id]/seats/page.tsx`, `SeatSelectionPage.tsx`, `SeatFlightSummary.tsx`, `BookingProgress.tsx` |
+| 5.2 | `SeatMap.tsx`, `SeatMapLegend.tsx`, `SeatMapSkeleton.tsx`, `lib/seats/seat-layout.ts` |
+| 5.3 | `SelectedSeat` type · `useFlightStore.setSelectedSeat` · `SeatPricePreview.tsx` · `price-breakdown.ts` |
+| 5.4 | `useSeatRealtime.ts` · `AppToast.tsx` · requires `seats` in `supabase_realtime` publication |
+| 5.5 | `SeatContinueBar.tsx` · `lib/booking/reserve-seat.ts` · `activeBooking` in store · `/book/[flightId]` placeholder |
 
 ### 5.1 — Page Layout
-- [ ] `src/app/flights/[id]/seats/page.tsx` — flight summary header
-- [ ] Booking progress step indicator (step 2 of 4)
-- [ ] Auth gate: if no session → open `AuthModal` before seat interaction
+- [x] `src/app/flights/[id]/seats/page.tsx` — flight summary header
+- [x] Booking progress step indicator (step 2 of 4)
+- [x] Auth gate: if no session → open `AuthModal` before seat interaction
 
 ### 5.2 — Seat Map Grid
-- [ ] `src/components/seats/SeatMap.tsx` — rows × columns (A–F)
-- [ ] Color states: available · selected · taken · premium
-- [ ] Class zones: economy rear · business front · legend
-- [ ] Fetch seats for `flight_id` on mount
+- [x] `src/components/seats/SeatMap.tsx` — rows × columns (A–F)
+- [x] Color states: available · selected · taken · premium
+- [x] Class zones: First / Business / Economy · legend
+- [x] Fetch seats for `flight_id` on mount
 
 ### 5.3 — Seat Selection Logic
-- [ ] Click seat → optimistic update in `useFlightStore`
-- [ ] Call `reserve_seat` only on **Continue** (or hold selection until confirm step — document choice)
-- [ ] Show extra_fee in price preview
-- [ ] Disable taken seats
+- [x] Click seat → `selectedSeat` in `useFlightStore` (tap again to deselect)
+- [x] **`reserve_seat` on Continue only** (not on tap) — documented above
+- [x] `SeatPricePreview` — base fare · seat fee · 12% taxes · total
+- [x] Disable taken seats · cabin-class selectable seats only
 
 ### 5.4 — Supabase Realtime Subscription
-- [ ] `src/hooks/useSeatRealtime.ts` — channel `seats:flight_id=eq.{id}`
-- [ ] On `UPDATE` where `is_available = false` → update local grid
-- [ ] Toast: *"A seat was just taken"* if user had it highlighted
-- [ ] Cleanup subscription on unmount
+- [x] `src/hooks/useSeatRealtime.ts` — `postgres_changes` on `seats` filtered by `flight_id`
+- [x] On `UPDATE` → `is_available = false` merges into local grid
+- [x] Toast: *"A seat was just taken"* (or specific message if your selection was lost)
+- [x] Cleanup subscription on unmount
 
 ### 5.5 — Continue to Booking
-- [ ] Footer CTA: total price · **Continue to Passenger Details**
-- [ ] Navigate to `/book/[flightId]` with seat in store
-- [ ] Handle RPC error: seat taken → revert optimistic state
+- [x] Sticky `SeatContinueBar` — disabled until seat selected
+- [x] **Continue** → `reserve_seat` RPC → `activeBooking` + navigate `/book/[flightId]`
+- [x] RPC error → toast · clear selection · refresh seat map
+- [x] `BookPassengerPlaceholder.tsx` — step 3 shell until Phase 6 form
 
 ---
 ## PHASE 6 — Frontend: Booking Flow (`/book/[flightId]` + `/booking/[pnr]`)
@@ -737,11 +744,11 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 - [ ] **Do not** write passport to localStorage
 - [ ] `bookingStep` = 3 in store
 
-### 6.3 — Submit & RPC
-- [ ] Server action `createBooking` → calls `reserve_seat` RPC
-- [ ] Pass passenger as JSON to RPC
+### 6.3 — Submit & passenger row
+- [ ] Insert `passengers` row linked to `activeBooking.id` from Phase 5.5 (booking already created by `reserve_seat` on Continue)
+- [ ] Do **not** call `reserve_seat` again unless booking missing (guard + refetch)
 - [ ] On success: redirect to `/booking/[pnr]`
-- [ ] On failure: show error · release optimistic seat if needed
+- [ ] On failure: show error · optional `cancel_booking` to release seat if abandoning
 
 ### 6.4 — Confirmation Page
 - [ ] `src/app/booking/[pnr]/page.tsx` — fetch booking by PNR + user

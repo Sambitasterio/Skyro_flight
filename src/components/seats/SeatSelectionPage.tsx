@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AuthModal } from "@/components/auth/AuthModal";
 import { BookingProgress } from "@/components/booking/BookingProgress";
@@ -10,6 +10,7 @@ import { useFlightStore } from "@/store/useFlightStore";
 import { useUserStore } from "@/store/useUserStore";
 import type { FlightRow } from "@/types/database";
 
+import { SeatContinueBar } from "./SeatContinueBar";
 import { SeatFlightSummary } from "./SeatFlightSummary";
 import { SeatMap } from "./SeatMap";
 
@@ -27,8 +28,15 @@ export function SeatSelectionPage({ flight, flightId }: SeatSelectionPageProps) 
 
   const [authReady, setAuthReady] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const refreshSeatsRef = useRef<(() => void) | null>(null);
+
+  const registerSeatRefresh = useCallback((refresh: () => void) => {
+    refreshSeatsRef.current = refresh;
+  }, []);
 
   const isLoggedIn = Boolean(session?.user);
+  const seatForFlight =
+    selectedSeat?.flight_id === flightId ? selectedSeat : null;
 
   useEffect(() => {
     setBookingStep(2);
@@ -59,7 +67,7 @@ export function SeatSelectionPage({ flight, flightId }: SeatSelectionPageProps) 
 
   return (
     <>
-      <main className="mx-auto flex max-w-7xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10">
+      <main className="mx-auto flex max-w-7xl flex-1 flex-col gap-6 px-4 py-8 pb-28 sm:px-6 sm:py-10 sm:pb-28">
         <nav className="text-sm text-muted" aria-label="Breadcrumb">
           <Link href={resultsHref} className="hover:text-primary font-medium">
             Search
@@ -111,6 +119,7 @@ export function SeatSelectionPage({ flight, flightId }: SeatSelectionPageProps) 
                       ? selectedFlight.cabinClass
                       : "economy"
                   }
+                  registerRefresh={registerSeatRefresh}
                 />
               )}
             </div>
@@ -129,6 +138,15 @@ export function SeatSelectionPage({ flight, flightId }: SeatSelectionPageProps) 
           </div>
         </div>
       </main>
+
+      {isLoggedIn ? (
+        <SeatContinueBar
+          flightId={flightId}
+          selectedSeat={seatForFlight}
+          disabled={!isLoggedIn}
+          onReserveFailed={() => refreshSeatsRef.current?.()}
+        />
+      ) : null}
 
       <AuthModal
         open={authModalOpen}

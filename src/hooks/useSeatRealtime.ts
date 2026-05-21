@@ -11,6 +11,11 @@ interface UseSeatRealtimeOptions {
   onSelectedSeatLost: () => void;
 }
 
+interface RealtimeSideEffects {
+  clearSelection: boolean;
+  toast: string | null;
+}
+
 /**
  * Subscribes to `postgres_changes` on `seats` for one flight.
  * Merges UPDATE payloads into local seat state and surfaces a toast when
@@ -55,6 +60,10 @@ export function useSeatRealtime(
             extra_fee: Number(raw.extra_fee ?? 0),
           };
 
+          const sideEffects: { current: RealtimeSideEffects | null } = {
+            current: null,
+          };
+
           setSeats((prev) => {
             const index = prev.findIndex((s) => s.id === patch.id);
             if (index === -1) return prev;
@@ -65,16 +74,18 @@ export function useSeatRealtime(
               prevSeat.is_available && merged.is_available === false;
 
             if (becameTaken) {
-              const { selectedSeatId: selectedId, onSelectedSeatLost } =
-                optionsRef.current;
+              const { selectedSeatId: selectedId } = optionsRef.current;
 
               if (selectedId === merged.id) {
-                onSelectedSeatLost();
-                setToast(
-                  `Seat ${merged.seat_number} was just taken — pick another.`,
-                );
+                sideEffects.current = {
+                  clearSelection: true,
+                  toast: `Seat ${merged.seat_number} was just taken — pick another.`,
+                };
               } else {
-                setToast("A seat was just taken");
+                sideEffects.current = {
+                  clearSelection: false,
+                  toast: "A seat was just taken",
+                };
               }
             }
 
@@ -82,6 +93,14 @@ export function useSeatRealtime(
             next[index] = merged;
             return next;
           });
+
+          const effects = sideEffects.current;
+          if (effects?.clearSelection) {
+            optionsRef.current.onSelectedSeatLost();
+          }
+          if (effects?.toast) {
+            setToast(effects.toast);
+          }
         },
       )
       .subscribe();

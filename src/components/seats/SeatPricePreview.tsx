@@ -67,7 +67,7 @@ export function SeatPricePreview({
       </dl>
 
       <p className="mt-3 text-xs text-muted">
-        Your seat is saved for this session. Tap Continue to lock it in.
+        Tap Continue to lock your seat and proceed to passenger details.
       </p>
     </div>
   );

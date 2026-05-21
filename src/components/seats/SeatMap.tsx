@@ -24,13 +24,15 @@ import { SeatMapSkeleton } from "./SeatMapSkeleton";
 interface SeatMapProps {
   flightId: string;
   cabinClass: CabinClass;
+  /** Called once with a refetch function for reserve failures. */
+  registerRefresh?: (refresh: () => void) => void;
 }
 
 /**
  * Seat selection is optimistic in Zustand only.
  * `reserve_seat` runs on Continue (Phase 5.5), not on click.
  */
-export function SeatMap({ flightId, cabinClass }: SeatMapProps) {
+export function SeatMap({ flightId, cabinClass, registerRefresh }: SeatMapProps) {
   const selectedSeat = useFlightStore((s) => s.selectedSeat);
   const setSelectedSeat = useFlightStore((s) => s.setSelectedSeat);
 
@@ -74,6 +76,12 @@ export function SeatMap({ flightId, cabinClass }: SeatMapProps) {
   useEffect(() => {
     void fetchSeats();
   }, [fetchSeats]);
+
+  useEffect(() => {
+    registerRefresh?.(() => {
+      void fetchSeats();
+    });
+  }, [fetchSeats, registerRefresh]);
 
   const realtimeEnabled = !loading && !error;
   const { toast, dismissToast } = useSeatRealtime(flightId, setSeats, {
