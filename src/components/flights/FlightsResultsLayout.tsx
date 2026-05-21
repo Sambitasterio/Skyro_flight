@@ -1,15 +1,15 @@
 import type { ReactNode } from "react";
 
 interface FlightsResultsLayoutProps {
-  sidebar: ReactNode;
   header: ReactNode;
+  sidebar: ReactNode;
   results: ReactNode;
   mobileFilterTrigger?: ReactNode;
 }
 
 export function FlightsResultsLayout({
-  sidebar,
   header,
+  sidebar,
   results,
   mobileFilterTrigger,
 }: FlightsResultsLayoutProps) {

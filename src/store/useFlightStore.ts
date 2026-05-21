@@ -5,6 +5,7 @@ import type {
   BookingStep,
   CabinClass,
   SearchQuery,
+  SelectedFlight,
   TripType,
 } from "@/types/flight";
 
@@ -39,11 +40,12 @@ interface PassengerForm {
 
 interface FlightState {
   searchQuery: SearchQuery;
-  selectedFlight: null;
+  selectedFlight: SelectedFlight | null;
   selectedSeat: null;
   bookingStep: BookingStep;
   passengerForm: PassengerForm;
   setSearchQuery: (query: Partial<SearchQuery>) => void;
+  setSelectedFlight: (flight: SelectedFlight | null) => void;
   setBookingStep: (step: BookingStep) => void;
   setPassengerForm: (form: Partial<PassengerForm>) => void;
   resetBooking: () => void;
@@ -68,6 +70,7 @@ export const useFlightStore = create<FlightState>()(
         set((state) => ({
           searchQuery: { ...state.searchQuery, ...query },
         })),
+      setSelectedFlight: (selectedFlight) => set({ selectedFlight }),
       setBookingStep: (bookingStep) => set({ bookingStep }),
       setPassengerForm: (form) =>
         set((state) => ({

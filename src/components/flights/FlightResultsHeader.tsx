@@ -12,12 +12,15 @@ interface FlightResultsHeaderProps {
   params: FlightsSearchParams;
   count: number;
   flexibleDate?: boolean;
+  /** Shown when filters reduce the list below the fetched total. */
+  totalUnfiltered?: number;
 }
 
 export function FlightResultsHeader({
   params,
   count,
   flexibleDate = false,
+  totalUnfiltered,
 }: FlightResultsHeaderProps) {
   const routeLabel = `${airportLabel(params.origin)} → ${airportLabel(params.destination)}`;
   const dateLabel = formatFlightDate(`${params.departDate}T12:00:00.000Z`);
@@ -52,6 +55,13 @@ export function FlightResultsHeader({
           <p className="mt-2 text-xs text-muted sm:text-sm">
             No flights on your exact date — showing upcoming flights on this
             route.
+          </p>
+        ) : null}
+        {totalUnfiltered !== undefined &&
+        totalUnfiltered > count &&
+        count > 0 ? (
+          <p className="mt-2 text-xs text-muted sm:text-sm">
+            Showing {count} of {totalUnfiltered} flights after filters.
           </p>
         ) : null}
       </div>
