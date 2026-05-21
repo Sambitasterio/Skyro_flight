@@ -3,39 +3,41 @@ import { cabinClassLabel, formatInr } from "@/lib/flights/format";
 import type { SelectedFlight } from "@/types/flight";
 import type { SelectedSeat } from "@/types/flight";
 
-interface SeatPricePreviewProps {
+interface BookingPriceBreakdownProps {
   selectedFlight: SelectedFlight | null;
   selectedSeat: SelectedSeat | null;
+  /** Total from `reserve_seat` — shown when store breakdown may differ from RPC. */
+  reservedTotal?: number;
 }
 
-export function SeatPricePreview({
+export function BookingPriceBreakdown({
   selectedFlight,
   selectedSeat,
-}: SeatPricePreviewProps) {
+  reservedTotal,
+}: BookingPriceBreakdownProps) {
   if (!selectedFlight) {
     return (
-      <p className="mt-4 text-sm text-muted">Select a seat to see your fare.</p>
+      <p className="mt-4 text-sm text-muted">Fare details unavailable.</p>
     );
   }
 
-  const baseFare = selectedFlight.displayPrice;
   const breakdown = calculatePriceBreakdown(
-    baseFare,
+    selectedFlight.displayPrice,
     selectedSeat?.extra_fee ?? 0,
   );
+  const total =
+    reservedTotal !== undefined ? reservedTotal : breakdown.total;
 
   return (
     <div className="mt-4 border-t border-border pt-4">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-        Price preview
+        Price breakdown
       </p>
       {selectedSeat ? (
         <p className="mt-1 text-sm font-medium text-foreground">
           Seat {selectedSeat.seat_number} · {cabinClassLabel(selectedSeat.class)}
         </p>
-      ) : (
-        <p className="mt-1 text-sm text-muted">No seat selected yet</p>
-      )}
+      ) : null}
 
       <dl className="mt-3 space-y-2 text-sm">
         <div className="flex justify-between gap-2">
@@ -61,14 +63,10 @@ export function SeatPricePreview({
         <div className="flex justify-between gap-2 border-t border-border pt-2 text-base">
           <dt className="font-semibold text-foreground">Total</dt>
           <dd className="font-bold tabular-nums text-primary">
-            {formatInr(breakdown.total)}
+            {formatInr(total)}
           </dd>
         </div>
       </dl>
-
-      <p className="mt-3 text-xs text-muted">
-        Tap Continue to lock your seat and open passenger details.
-      </p>
     </div>
   );
 }

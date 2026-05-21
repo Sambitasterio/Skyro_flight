@@ -446,7 +446,7 @@ Test: [how to verify in browser/terminal, if applicable]
 | **Phase 3** | Landing Page | ✅ Done | Landing at `/` · search → `/flights?...` |
 | **Phase 4** | Flight Search Results | ✅ Done | Smoke-test `/flights` · filters · sort tabs · inline modify search · **Phase 5 ready** for seat map |
 | **Phase 5** | Seat Map + Realtime | ✅ Done | Realtime on **`seats`** enabled · test map + Continue → `/book/[flightId]` |
-| **Phase 6** | Booking Flow | ⬜ Not Started | Log in · complete seat + Continue once · reply **`Phase 6 proceed`** |
+| **Phase 6** | Booking Flow | 🔄 In Progress | Log in · seat + Continue once · **continue** for 6.2 passenger form |
 | **Phase 7** | My Bookings | ⬜ Not Started | Test reschedule + cancel flows · confirm cancel blocked < 2 hours before departure (use seed flight times) |
 | **Phase 8** | Zustand Stores | 🔄 Partial | `searchQuery` · `selectedFlight` · `selectedSeat` · `activeBooking` persisted · finalize passport `partialize` in Phase 6/8 |
 | **Phase 9** | PWA (Bonus) | ⬜ Not Started | Chrome Lighthouse audit → screenshot → save to `docs/lighthouse.png` · test install on mobile browser |
@@ -734,9 +734,10 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 > **Reply *"Phase 6 proceed"* when ready to build booking + confirmation.**
 
 ### 6.1 — Booking Page Layout
-- [ ] `src/app/book/[flightId]/page.tsx` — summary sidebar (flight · seat · price)
-- [ ] Progress step 3 of 4
-- [ ] Redirect if no `selectedSeat` in store
+- [x] `src/app/book/[flightId]/page.tsx` — server flight fetch · `BookPassengerPage`
+- [x] `BookingSummarySidebar` — flight · seat · PNR · `BookingPriceBreakdown`
+- [x] Progress step 3 of 4 · breadcrumb
+- [x] Redirect if no `activeBooking` for this flight (after store hydration)
 
 ### 6.2 — Passenger Form
 - [ ] `src/components/booking/PassengerForm.tsx` — full name · passport · nationality · DOB
