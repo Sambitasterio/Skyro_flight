@@ -11,6 +11,7 @@ import { useUserStore } from "@/store/useUserStore";
 import type { FlightRow } from "@/types/database";
 
 import { SeatFlightSummary } from "./SeatFlightSummary";
+import { SeatMap } from "./SeatMap";
 
 interface SeatSelectionPageProps {
   flight: FlightRow;
@@ -90,24 +91,26 @@ export function SeatSelectionPage({ flight, flightId }: SeatSelectionPageProps) 
             </header>
 
             <div
-              className={`relative rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center ${
-                !isLoggedIn ? "pointer-events-none opacity-60" : ""
-              }`}
+              className={
+                !isLoggedIn ? "pointer-events-none opacity-60" : undefined
+              }
               aria-hidden={!isLoggedIn}
             >
               {!isLoggedIn ? (
-                <p className="text-sm font-medium text-muted">
-                  Sign in to view and select seats
-                </p>
+                <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+                  <p className="text-sm font-medium text-muted">
+                    Sign in to view and select seats
+                  </p>
+                </div>
               ) : (
-                <>
-                  <p className="text-lg font-semibold text-foreground">
-                    Seat map coming next
-                  </p>
-                  <p className="mt-2 text-sm text-muted">
-                    Seat map grid loads in the next step.
-                  </p>
-                </>
+                <SeatMap
+                  flightId={flightId}
+                  cabinClass={
+                    selectedFlight?.id === flightId
+                      ? selectedFlight.cabinClass
+                      : "economy"
+                  }
+                />
               )}
             </div>
           </div>
