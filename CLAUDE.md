@@ -789,8 +789,10 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 - [x] Link **View details** → `/bookings/[id]` · empty state · `loading.tsx`
 
 ### 7.2 — Booking Detail
-- [ ] `src/app/bookings/[id]/page.tsx` — full itinerary · passenger · price
-- [ ] Show reschedule history from `reschedules` table if any
+- [x] `app/bookings/[id]/page.tsx` — auth · `loadBookingById`
+- [x] `BookingDetailPage` — horizontal itinerary · seat · passenger · total
+- [x] `RescheduleHistory` — from `reschedules` table when present
+- [x] Manage section — disabled Reschedule/Cancel + 2h window hint (wired in 7.3–7.4)
 
 ### 7.3 — Reschedule Flow
 - [ ] `src/components/bookings/RescheduleModal.tsx` — pick alternate flight (same route or flexible)
