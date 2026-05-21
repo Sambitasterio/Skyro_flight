@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
+import { completePassengerBooking } from "@/app/book/actions";
 import { BookingProgress } from "@/components/booking/BookingProgress";
 import { BookingSummarySidebar } from "@/components/booking/BookingSummarySidebar";
 import { PassengerForm } from "@/components/booking/PassengerForm";
@@ -20,9 +21,50 @@ export function BookPassengerPage({ flight, flightId }: BookPassengerPageProps) 
   const activeBooking = useFlightStore((s) => s.activeBooking);
   const selectedFlight = useFlightStore((s) => s.selectedFlight);
   const selectedSeat = useFlightStore((s) => s.selectedSeat);
+  const passengerForm = useFlightStore((s) => s.passengerForm);
   const setBookingStep = useFlightStore((s) => s.setBookingStep);
 
   const [storeReady, setStoreReady] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleConfirmBooking = useCallback(async () => {
+    if (!activeBooking) return;
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    const formData = new FormData();
+    formData.set("fullName", passengerForm.fullName);
+    formData.set("nationality", passengerForm.nationality);
+    formData.set("dob", passengerForm.dob);
+    formData.set("documentType", passengerForm.documentType);
+    formData.set("documentNumber", passengerForm.documentNumber);
+
+    const result = await completePassengerBooking(
+      activeBooking.id,
+      flightId,
+      formData,
+    );
+
+    setIsSubmitting(false);
+
+    if (result.error) {
+      setSubmitError(result.error);
+      return;
+    }
+
+    if (result.pnr) {
+      setBookingStep(4);
+      router.push(`/booking/${result.pnr}`);
+    }
+  }, [
+    activeBooking,
+    flightId,
+    passengerForm,
+    router,
+    setBookingStep,
+  ]);
 
   useEffect(() => {
     const unsub = useFlightStore.persist.onFinishHydration(() => {
@@ -115,7 +157,12 @@ export function BookPassengerPage({ flight, flightId }: BookPassengerPageProps) 
             </p>
           </header>
 
-          <PassengerForm flightId={flightId} />
+          <PassengerForm
+            flightId={flightId}
+            onValidSubmit={handleConfirmBooking}
+            isSubmitting={isSubmitting}
+            submitError={submitError}
+          />
         </div>
 
         <div className="w-full shrink-0 lg:w-80">

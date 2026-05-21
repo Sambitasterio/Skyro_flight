@@ -747,10 +747,11 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 - [x] `bookingStep` = 3 · Back to seat selection link
 
 ### 6.3 — Submit & passenger row
-- [ ] Insert `passengers` row linked to `activeBooking.id` from Phase 5.5 (booking already created by `reserve_seat` on Continue)
-- [ ] Do **not** call `reserve_seat` again unless booking missing (guard + refetch)
-- [ ] On success: redirect to `/booking/[pnr]`
-- [ ] On failure: show error · optional `cancel_booking` to release seat if abandoning
+- [x] `completePassengerBooking` server action — insert `passengers` for `activeBooking.id`
+- [x] No second `reserve_seat` — validates booking exists + belongs to user
+- [x] Idempotent if passenger row already exists → redirect with PNR
+- [x] On success: `/booking/[pnr]` · `getBookingByPnr` · confirmation shell
+- [x] On failure: inline error on form
 
 ### 6.4 — Confirmation Page
 - [ ] `src/app/booking/[pnr]/page.tsx` — fetch booking by PNR + user

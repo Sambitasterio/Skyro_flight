@@ -22,9 +22,10 @@ const inputErrorClass = "border-red-500/60 focus:ring-red-500/40";
 
 interface PassengerFormProps {
   flightId: string;
-  onValidSubmit?: () => void;
+  onValidSubmit?: () => void | Promise<void>;
   submitLabel?: string;
   isSubmitting?: boolean;
+  submitError?: string | null;
 }
 
 export function PassengerForm({
@@ -32,6 +33,7 @@ export function PassengerForm({
   onValidSubmit,
   submitLabel = "Confirm booking",
   isSubmitting = false,
+  submitError = null,
 }: PassengerFormProps) {
   const passengerForm = useFlightStore((s) => s.passengerForm);
   const setPassengerForm = useFlightStore((s) => s.setPassengerForm);
@@ -53,7 +55,7 @@ export function PassengerForm({
     const nextErrors = validatePassengerForm(passengerForm);
     setErrors(nextErrors);
     if (!hasPassengerErrors(nextErrors)) {
-      onValidSubmit?.();
+      void Promise.resolve(onValidSubmit?.());
     }
   };
 
@@ -71,6 +73,15 @@ export function PassengerForm({
         <strong className="text-foreground">Aadhaar</strong> or any valid
         government ID works. Use passport for international legs.
       </p>
+
+      {submitError ? (
+        <p
+          className="mb-5 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+          role="alert"
+        >
+          {submitError}
+        </p>
+      ) : null}
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5 sm:col-span-2">
