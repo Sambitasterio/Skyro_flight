@@ -314,7 +314,7 @@ Complete these **once**, before Phase 0 begins. The agent will not scaffold the 
 
 ## Frontend Design Gate — ✅ Phase 3 complete
 
-**Phases 3–7** use assets in **`design/`**. Phases 3–5 are **done**; Phase 6+ follow subsection pauses.
+**Phases 3–7** use assets in **`design/`**. Phases 3–6 are **done**; Phase 7+ follow subsection pauses.
 
 ### Status: ✅ Built (May 2026)
 
@@ -323,9 +323,9 @@ Complete these **once**, before Phase 0 begins. The agent will not scaffold the 
 - **Results page** uses Skyscanner-style summary bar · date strip · Best/Cheapest/Fastest tabs · white cards
 - User preference locked: no light theme · destination slideshow · no manual slide dots
 
-### Before Phase 6 (agent)
+### Before Phase 7 (agent)
 
-Reply **`Phase 6 proceed`** when ready for passenger form + confirmation (see Phase 6 checklist).
+Reply **`Phase 7 proceed`** when you have at least one test booking (see Phase 7 checklist).
 
 ---
 
@@ -447,7 +447,7 @@ Test: [how to verify in browser/terminal, if applicable]
 | **Phase 4** | Flight Search Results | ✅ Done | Smoke-test `/flights` · filters · sort tabs · inline modify search · **Phase 5 ready** for seat map |
 | **Phase 5** | Seat Map + Realtime | ✅ Done | Realtime on **`seats`** enabled · test map + Continue → `/book/[flightId]` |
 | **Phase 6** | Booking Flow | ✅ Done | End-to-end book → PNR confirmation · **Phase 7 proceed** for My Bookings |
-| **Phase 7** | My Bookings | ⬜ Not Started | Test reschedule + cancel flows · confirm cancel blocked < 2 hours before departure (use seed flight times) |
+| **Phase 7** | My Bookings | 🔄 In Progress | At least one booking from Phase 6 · **continue** for 7.2 detail page |
 | **Phase 8** | Zustand Stores | 🔄 Partial | `searchQuery` · `selectedFlight` · `selectedSeat` · `activeBooking` persisted · finalize passport `partialize` in Phase 6/8 |
 | **Phase 9** | PWA (Bonus) | ⬜ Not Started | Chrome Lighthouse audit → screenshot → save to `docs/lighthouse.png` · test install on mobile browser |
 | **Phase 10** | Polish + Deploy | ⬜ Not Started | Create **public** GitHub repo → push → connect Vercel → add 3 env vars → verify production URL · add live URL to README |
@@ -722,7 +722,7 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 ---
 ## PHASE 6 — Frontend: Booking Flow (`/book/[flightId]` + `/booking/[pnr]`)
 
-> **Subsection pauses:** Agent completes **one** of 6.1–6.5 per checkpoint, then stops for your *"continue"* (see Agent Workflow).
+> **Phase pause:** Done (May 2026). **Next:** Phase 7 — My Bookings.
 
 **Goal:** Passenger form → confirmation with PNR.
 
@@ -783,10 +783,10 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 > **Reply *"Phase 7 proceed"* when you have a test booking.**
 
 ### 7.1 — My Bookings Page
-- [ ] `src/app/bookings/page.tsx` — protected route
-- [ ] Tabs: All · Upcoming · Past · Cancelled
-- [ ] `src/components/bookings/BookingCard.tsx` — route · date · status badge · PNR
-- [ ] Link to detail `/bookings/[id]`
+- [x] `app/bookings/page.tsx` — auth redirect · `loadUserBookings`
+- [x] `MyBookingsPage` — tabs All · Upcoming · Past · Cancelled (with counts)
+- [x] `BookingCard` · `BookingStatusBadge` — route · date · PNR · seat · passenger · total
+- [x] Link **View details** → `/bookings/[id]` · empty state · `loading.tsx`
 
 ### 7.2 — Booking Detail
 - [ ] `src/app/bookings/[id]/page.tsx` — full itinerary · passenger · price

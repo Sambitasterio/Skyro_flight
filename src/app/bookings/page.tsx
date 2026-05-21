@@ -1,13 +1,25 @@
-import Link from "next/link";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-export default function BookingsPlaceholderPage() {
-  return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-24">
-      <h1 className="text-2xl font-bold">My Bookings</h1>
-      <p className="text-muted">Protected route — you are authenticated.</p>
-      <Link href="/" className="text-primary underline">
-        Back home
-      </Link>
-    </main>
-  );
+import { MyBookingsPage } from "@/components/bookings/MyBookingsPage";
+import { loadUserBookings } from "@/lib/bookings/load-user-bookings";
+import { createClient } from "@/lib/supabase/server";
+
+export const metadata: Metadata = {
+  title: "My Bookings",
+};
+
+export default async function BookingsPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/auth/login?next=${encodeURIComponent("/bookings")}`);
+  }
+
+  const bookings = await loadUserBookings();
+
+  return <MyBookingsPage bookings={bookings} />;
 }
