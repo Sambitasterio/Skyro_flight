@@ -15,6 +15,9 @@ import { useFlightStore } from "@/store/useFlightStore";
 import type { CabinClass } from "@/types/flight";
 import type { SeatRow } from "@/types/database";
 
+import { AppToast } from "@/components/ui/AppToast";
+import { useSeatRealtime } from "@/hooks/useSeatRealtime";
+
 import { SeatMapLegend } from "./SeatMapLegend";
 import { SeatMapSkeleton } from "./SeatMapSkeleton";
 
@@ -72,6 +75,13 @@ export function SeatMap({ flightId, cabinClass }: SeatMapProps) {
     void fetchSeats();
   }, [fetchSeats]);
 
+  const realtimeEnabled = !loading && !error;
+  const { toast, dismissToast } = useSeatRealtime(flightId, setSeats, {
+    enabled: realtimeEnabled,
+    selectedSeatId,
+    onSelectedSeatLost: () => setSelectedSeat(null),
+  });
+
   const zones = useMemo(() => buildSeatZones(seats), [seats]);
 
   const handleSeatClick = (seat: SeatRow) => {
@@ -105,6 +115,12 @@ export function SeatMap({ flightId, cabinClass }: SeatMapProps) {
 
   return (
     <div className="space-y-4">
+      <AppToast
+        message={toast}
+        variant="info"
+        onDismiss={dismissToast}
+      />
+
       <SeatMapLegend />
 
       <div className="overflow-x-auto rounded-2xl border border-border bg-card p-4 sm:p-6">
