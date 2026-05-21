@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { BookingProgress } from "@/components/booking/BookingProgress";
+import { BookingEmailReceipt } from "@/components/booking/BookingEmailReceipt";
 import { CopyPnrButton } from "@/components/booking/CopyPnrButton";
 import { formatStoredDocument } from "@/lib/booking/format-document";
 import type { BookingConfirmationData } from "@/lib/booking/get-booking-by-pnr";
@@ -51,12 +52,21 @@ export function BookingConfirmationPage({
   };
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10">
-      <nav className="text-sm text-muted" aria-label="Breadcrumb">
+    <main className="booking-confirmation-print mx-auto flex max-w-3xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10">
+      <nav
+        className="no-print text-sm text-muted"
+        aria-label="Breadcrumb"
+      >
         <span className="text-foreground font-medium">Booking confirmed</span>
       </nav>
 
-      <BookingProgress currentStep={4} />
+      <div className="no-print">
+        <BookingProgress currentStep={4} />
+      </div>
+
+      <p className="booking-print-header hidden text-sm font-bold text-black">
+        Skyro — Flight booking confirmation
+      </p>
 
       <header className="text-center">
         <div
@@ -93,10 +103,19 @@ export function BookingConfirmationPage({
         <p className="mt-2 font-mono text-4xl font-bold tracking-wider text-primary sm:text-5xl">
           {booking.pnr_code}
         </p>
-        <div className="mt-4 flex justify-center">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           <CopyPnrButton pnr={booking.pnr_code} />
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="no-print rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-primary/50 hover:text-primary"
+          >
+            Print / Save PDF
+          </button>
         </div>
       </section>
+
+      <BookingEmailReceipt pnr={booking.pnr_code} />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <section className="rounded-2xl border border-border bg-card p-5">
@@ -212,7 +231,7 @@ export function BookingConfirmationPage({
         </div>
       </section>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+      <div className="no-print flex flex-col gap-3 sm:flex-row sm:justify-center">
         <button
           type="button"
           onClick={() => handleLeave("/bookings")}
@@ -229,7 +248,7 @@ export function BookingConfirmationPage({
         </button>
       </div>
 
-      <p className="text-center text-xs text-muted">
+      <p className="no-print text-center text-xs text-muted">
         Save your PNR — you&apos;ll need it at check-in.
       </p>
     </main>

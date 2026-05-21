@@ -446,7 +446,7 @@ Test: [how to verify in browser/terminal, if applicable]
 | **Phase 3** | Landing Page | ✅ Done | Landing at `/` · search → `/flights?...` |
 | **Phase 4** | Flight Search Results | ✅ Done | Smoke-test `/flights` · filters · sort tabs · inline modify search · **Phase 5 ready** for seat map |
 | **Phase 5** | Seat Map + Realtime | ✅ Done | Realtime on **`seats`** enabled · test map + Continue → `/book/[flightId]` |
-| **Phase 6** | Booking Flow | 🔄 In Progress | Log in · seat + Continue once · **continue** for 6.2 passenger form |
+| **Phase 6** | Booking Flow | ✅ Done | End-to-end book → PNR confirmation · **Phase 7 proceed** for My Bookings |
 | **Phase 7** | My Bookings | ⬜ Not Started | Test reschedule + cancel flows · confirm cancel blocked < 2 hours before departure (use seed flight times) |
 | **Phase 8** | Zustand Stores | 🔄 Partial | `searchQuery` · `selectedFlight` · `selectedSeat` · `activeBooking` persisted · finalize passport `partialize` in Phase 6/8 |
 | **Phase 9** | PWA (Bonus) | ⬜ Not Started | Chrome Lighthouse audit → screenshot → save to `docs/lighthouse.png` · test install on mobile browser |
@@ -761,9 +761,12 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 - [x] `bookingStep` = 4
 
 ### 6.5 — Booking UX Polish
-- [ ] Print-friendly confirmation stylesheet (optional)
-- [ ] Copy PNR button
-- [ ] Email confirmation placeholder (optional, no backend required)
+- [x] `@media print` in `globals.css` — hides nav/footer/CTAs · light ticket layout
+- [x] **Print / Save PDF** button on confirmation (uses browser print)
+- [x] `CopyPnrButton` (from 6.4)
+- [x] `BookingEmailReceipt` — demo send · pre-fills session email · no backend
+
+> **Phase pause:** Phase 6 complete. **Next:** Phase 7 — reply *"Phase 7 proceed"*.
 
 ---
 ## PHASE 7 — Frontend: My Bookings (`/bookings` + `/bookings/[id]`)

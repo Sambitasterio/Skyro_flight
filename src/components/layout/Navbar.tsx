@@ -66,7 +66,7 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        className={`no-print fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
           solid
             ? "border-b border-border/80 bg-card/90 shadow-sm backdrop-blur-md"
             : "border-b border-white/10 bg-slate-900/40 backdrop-blur-md"
@@ -173,7 +173,7 @@ export function Navbar() {
       {/* Mobile menu overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-[60] bg-black/40 md:hidden"
+          className="no-print fixed inset-0 z-[60] bg-black/40 md:hidden"
           aria-hidden
           onClick={() => setMobileOpen(false)}
         />
@@ -181,7 +181,7 @@ export function Navbar() {
 
       {/* Mobile bottom sheet */}
       <div
-        className={`fixed inset-x-0 bottom-0 z-[70] rounded-t-2xl border-t border-border bg-card p-6 shadow-2xl transition-transform duration-300 md:hidden ${
+        className={`no-print fixed inset-x-0 bottom-0 z-[70] rounded-t-2xl border-t border-border bg-card p-6 shadow-2xl transition-transform duration-300 md:hidden ${
           mobileOpen ? "translate-y-0" : "translate-y-full"
         }`}
         role="dialog"
