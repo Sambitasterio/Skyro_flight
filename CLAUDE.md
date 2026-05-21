@@ -740,9 +740,10 @@ SELECT policyname FROM pg_policies WHERE tablename = 'bookings';
 - [x] Redirect if no `activeBooking` for this flight (after store hydration)
 
 ### 6.2 — Passenger Form
-- [x] `PassengerForm.tsx` — full name · passport · nationality · DOB
-- [x] `validate-passenger.ts` — required fields · past DOB · passport format
-- [x] Passport masked on blur · `passengerForm` excluded from Zustand `partialize`
+- [x] `PassengerForm.tsx` — full name · nationality · DOB · **government ID** (default **Aadhaar**)
+- [x] ID types: Aadhaar · Passport · Voter ID · Driving licence · Other
+- [x] `validate-passenger.ts` — per-type rules (Aadhaar 12 digits, etc.)
+- [x] ID masked on blur · `passengerForm` excluded from Zustand `partialize` (stored in DB `passport_no` column with type prefix)
 - [x] `bookingStep` = 3 · Back to seat selection link
 
 ### 6.3 — Submit & passenger row

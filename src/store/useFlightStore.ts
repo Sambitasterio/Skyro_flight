@@ -52,9 +52,10 @@ interface FlightState {
 
 const defaultPassengerForm: PassengerFormData = {
   fullName: "",
-  nationality: "",
+  nationality: "Indian",
   dob: "",
-  passportNo: "",
+  documentType: "aadhaar",
+  documentNumber: "",
 };
 
 export const useFlightStore = create<FlightState>()(

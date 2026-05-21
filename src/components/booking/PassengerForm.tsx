@@ -3,14 +3,18 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import {
+  documentOption,
+  GOVERNMENT_DOCUMENT_OPTIONS,
+} from "@/lib/booking/government-documents";
 import { NATIONALITIES } from "@/lib/booking/nationalities";
 import {
   hasPassengerErrors,
-  maskPassport,
+  maskDocumentNumber,
   validatePassengerForm,
 } from "@/lib/booking/validate-passenger";
 import { useFlightStore } from "@/store/useFlightStore";
-import type { PassengerFieldErrors } from "@/types/passenger";
+import type { GovernmentDocumentType, PassengerFieldErrors } from "@/types/passenger";
 
 const inputClass =
   "w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground outline-none ring-primary focus:ring-2 disabled:opacity-60";
@@ -18,7 +22,6 @@ const inputErrorClass = "border-red-500/60 focus:ring-red-500/40";
 
 interface PassengerFormProps {
   flightId: string;
-  /** Called when all fields pass validation (wired in Phase 6.3). */
   onValidSubmit?: () => void;
   submitLabel?: string;
   isSubmitting?: boolean;
@@ -35,12 +38,14 @@ export function PassengerForm({
 
   const [errors, setErrors] = useState<PassengerFieldErrors>({});
   const [touched, setTouched] = useState(false);
-  const [passportFocused, setPassportFocused] = useState(false);
+  const [documentFocused, setDocumentFocused] = useState(false);
 
-  const passportDisplay =
-    passportFocused || !passengerForm.passportNo
-      ? passengerForm.passportNo
-      : maskPassport(passengerForm.passportNo);
+  const docMeta = documentOption(passengerForm.documentType);
+
+  const documentDisplay =
+    documentFocused || !passengerForm.documentNumber
+      ? passengerForm.documentNumber
+      : maskDocumentNumber(passengerForm.documentNumber);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,10 +66,16 @@ export function PassengerForm({
       className="rounded-2xl border border-border bg-card p-5 sm:p-6"
       noValidate
     >
+      <p className="mb-5 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted">
+        Domestic routes (DEL, BOM, GOA, etc.) —{" "}
+        <strong className="text-foreground">Aadhaar</strong> or any valid
+        government ID works. Use passport for international legs.
+      </p>
+
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5 sm:col-span-2">
           <label htmlFor="fullName" className="text-sm font-medium text-foreground">
-            Full name (as on passport)
+            Full name (as on your ID)
           </label>
           <input
             id="fullName"
@@ -78,12 +89,9 @@ export function PassengerForm({
             className={`${inputClass} ${showError("fullName") ? inputErrorClass : ""}`}
             placeholder="e.g. Rahul Sharma"
             aria-invalid={showError("fullName")}
-            aria-describedby={showError("fullName") ? "fullName-error" : undefined}
           />
           {showError("fullName") ? (
-            <p id="fullName-error" className="text-xs text-red-400">
-              {errors.fullName}
-            </p>
+            <p className="text-xs text-red-400">{errors.fullName}</p>
           ) : null}
         </div>
 
@@ -99,7 +107,6 @@ export function PassengerForm({
               setPassengerForm({ nationality: e.target.value })
             }
             className={`${inputClass} ${showError("nationality") ? inputErrorClass : ""}`}
-            aria-invalid={showError("nationality")}
           >
             <option value="">Select country</option>
             {NATIONALITIES.map((n) => (
@@ -124,41 +131,77 @@ export function PassengerForm({
             value={passengerForm.dob}
             onChange={(e) => setPassengerForm({ dob: e.target.value })}
             className={`${inputClass} ${showError("dob") ? inputErrorClass : ""}`}
-            aria-invalid={showError("dob")}
           />
           {showError("dob") ? (
             <p className="text-xs text-red-400">{errors.dob}</p>
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-1.5 sm:col-span-2">
+        <div className="flex flex-col gap-1.5">
           <label
-            htmlFor="passportNo"
+            htmlFor="documentType"
             className="text-sm font-medium text-foreground"
           >
-            Passport number
+            ID type
+          </label>
+          <select
+            id="documentType"
+            name="documentType"
+            value={passengerForm.documentType}
+            onChange={(e) =>
+              setPassengerForm({
+                documentType: e.target.value as GovernmentDocumentType,
+                documentNumber: "",
+              })
+            }
+            className={inputClass}
+          >
+            {GOVERNMENT_DOCUMENT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="documentNumber"
+            className="text-sm font-medium text-foreground"
+          >
+            {docMeta.label} number
           </label>
           <input
-            id="passportNo"
-            name="passportNo"
+            id="documentNumber"
+            name="documentNumber"
             type="text"
-            autoComplete="off"
-            value={passportDisplay}
-            onFocus={() => setPassportFocused(true)}
-            onBlur={() => setPassportFocused(false)}
-            onChange={(e) =>
-              setPassengerForm({ passportNo: e.target.value.toUpperCase() })
+            inputMode={
+              passengerForm.documentType === "aadhaar" ? "numeric" : "text"
             }
-            className={`${inputClass} font-mono tracking-wide ${showError("passportNo") ? inputErrorClass : ""}`}
-            placeholder="A1234567"
-            aria-invalid={showError("passportNo")}
+            autoComplete="off"
+            value={documentDisplay}
+            onFocus={() => setDocumentFocused(true)}
+            onBlur={() => setDocumentFocused(false)}
+            onChange={(e) => {
+              const raw = e.target.value;
+              setPassengerForm({
+                documentNumber:
+                  passengerForm.documentType === "aadhaar"
+                    ? raw.replace(/\D/g, "").slice(0, 12)
+                    : raw.toUpperCase(),
+              });
+            }}
+            className={`${inputClass} font-mono tracking-wide ${showError("documentNumber") ? inputErrorClass : ""}`}
+            placeholder={docMeta.placeholder}
+            aria-invalid={showError("documentNumber")}
           />
+          <p className="text-xs text-muted">{docMeta.hint}</p>
+          {showError("documentNumber") ? (
+            <p className="text-xs text-red-400">{errors.documentNumber}</p>
+          ) : null}
           <p className="text-xs text-muted">
             Masked after you leave the field · never saved to browser storage
           </p>
-          {showError("passportNo") ? (
-            <p className="text-xs text-red-400">{errors.passportNo}</p>
-          ) : null}
         </div>
       </div>
 
