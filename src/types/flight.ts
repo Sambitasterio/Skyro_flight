@@ -33,3 +33,12 @@ export interface SelectedFlight {
   cabinClass: CabinClass;
   displayPrice: number;
 }
+
+/** Seat chosen on map — persisted until booking RPC (Phase 5.5). */
+export interface SelectedSeat {
+  id: string;
+  flight_id: string;
+  seat_number: string;
+  class: CabinClass;
+  extra_fee: number;
+}

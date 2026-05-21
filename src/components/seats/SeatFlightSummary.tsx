@@ -4,24 +4,25 @@ import {
   formatDuration,
   formatFlightDate,
   formatFlightTime,
-  formatInr,
 } from "@/lib/flights/format";
-import { priceForCabin } from "@/lib/flights/pricing";
 import type { SelectedFlight } from "@/types/flight";
+import type { SelectedSeat } from "@/types/flight";
 import type { FlightRow } from "@/types/database";
+
+import { SeatPricePreview } from "./SeatPricePreview";
 
 interface SeatFlightSummaryProps {
   flight: FlightRow;
   selectedFlight: SelectedFlight | null;
+  selectedSeat: SelectedSeat | null;
 }
 
 export function SeatFlightSummary({
   flight,
   selectedFlight,
+  selectedSeat,
 }: SeatFlightSummaryProps) {
   const cabin = selectedFlight?.cabinClass ?? "economy";
-  const basePrice = Number(flight.base_price);
-  const displayPrice = selectedFlight?.displayPrice ?? priceForCabin(basePrice, cabin);
 
   return (
     <aside className="rounded-2xl border border-border bg-card p-4 sm:p-5 lg:sticky lg:top-20">
@@ -53,13 +54,12 @@ export function SeatFlightSummary({
             {cabinClassLabel(cabin)}
           </dd>
         </div>
-        <div>
-          <dt className="text-muted">From</dt>
-          <dd className="font-semibold tabular-nums text-primary">
-            {formatInr(displayPrice)}
-          </dd>
-        </div>
       </dl>
+
+      <SeatPricePreview
+        selectedFlight={selectedFlight}
+        selectedSeat={selectedSeat}
+      />
     </aside>
   );
 }

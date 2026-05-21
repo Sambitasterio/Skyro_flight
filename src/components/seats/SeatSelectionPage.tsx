@@ -22,6 +22,7 @@ export function SeatSelectionPage({ flight, flightId }: SeatSelectionPageProps) 
   const pathname = usePathname();
   const session = useUserStore((s) => s.session);
   const selectedFlight = useFlightStore((s) => s.selectedFlight);
+  const selectedSeat = useFlightStore((s) => s.selectedSeat);
   const setBookingStep = useFlightStore((s) => s.setBookingStep);
 
   const [authReady, setAuthReady] = useState(false);
@@ -120,6 +121,9 @@ export function SeatSelectionPage({ flight, flightId }: SeatSelectionPageProps) 
               flight={flight}
               selectedFlight={
                 selectedFlight?.id === flightId ? selectedFlight : null
+              }
+              selectedSeat={
+                selectedSeat?.flight_id === flightId ? selectedSeat : null
               }
             />
           </div>

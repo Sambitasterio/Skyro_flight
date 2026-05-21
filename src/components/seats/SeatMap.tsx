@@ -4,12 +4,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
 import { formatInr } from "@/lib/flights/format";
+import { seatRowToSelected } from "@/lib/seats/seat-from-row";
 import {
   buildSeatZones,
   isPremiumSeat,
   seatMatchesCabin,
   sortSeats,
 } from "@/lib/seats/seat-layout";
+import { useFlightStore } from "@/store/useFlightStore";
 import type { CabinClass } from "@/types/flight";
 import type { SeatRow } from "@/types/database";
 
@@ -19,15 +21,22 @@ import { SeatMapSkeleton } from "./SeatMapSkeleton";
 interface SeatMapProps {
   flightId: string;
   cabinClass: CabinClass;
-  /** Local preview selection until Phase 5.3 wires the store. */
-  onPreviewSelect?: (seat: SeatRow | null) => void;
 }
 
-export function SeatMap({ flightId, cabinClass, onPreviewSelect }: SeatMapProps) {
+/**
+ * Seat selection is optimistic in Zustand only.
+ * `reserve_seat` runs on Continue (Phase 5.5), not on click.
+ */
+export function SeatMap({ flightId, cabinClass }: SeatMapProps) {
+  const selectedSeat = useFlightStore((s) => s.selectedSeat);
+  const setSelectedSeat = useFlightStore((s) => s.setSelectedSeat);
+
   const [seats, setSeats] = useState<SeatRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [previewSeatId, setPreviewSeatId] = useState<string | null>(null);
+
+  const selectedSeatId =
+    selectedSeat?.flight_id === flightId ? selectedSeat.id : null;
 
   const fetchSeats = useCallback(async () => {
     setLoading(true);
@@ -41,11 +50,23 @@ export function SeatMap({ flightId, cabinClass, onPreviewSelect }: SeatMapProps)
     if (fetchErr) {
       setError(fetchErr.message);
       setSeats([]);
-    } else {
-      setSeats(sortSeats((data ?? []) as SeatRow[]));
+      setLoading(false);
+      return;
     }
+
+    const rows = sortSeats((data ?? []) as SeatRow[]);
+    setSeats(rows);
     setLoading(false);
+    return rows;
   }, [flightId]);
+
+  useEffect(() => {
+    if (selectedSeat?.flight_id !== flightId || seats.length === 0) return;
+    const match = seats.find((s) => s.id === selectedSeat.id);
+    if (!match?.is_available) {
+      setSelectedSeat(null);
+    }
+  }, [seats, selectedSeat, flightId, setSelectedSeat]);
 
   useEffect(() => {
     void fetchSeats();
@@ -56,9 +77,12 @@ export function SeatMap({ flightId, cabinClass, onPreviewSelect }: SeatMapProps)
   const handleSeatClick = (seat: SeatRow) => {
     if (!seat.is_available || !seatMatchesCabin(seat, cabinClass)) return;
 
-    const next = previewSeatId === seat.id ? null : seat;
-    setPreviewSeatId(next?.id ?? null);
-    onPreviewSelect?.(next);
+    if (selectedSeatId === seat.id) {
+      setSelectedSeat(null);
+      return;
+    }
+
+    setSelectedSeat(seatRowToSelected(seat));
   };
 
   if (loading) return <SeatMapSkeleton />;
@@ -128,7 +152,7 @@ export function SeatMap({ flightId, cabinClass, onPreviewSelect }: SeatMapProps)
                           key={seat.id}
                           seat={seat}
                           cabinClass={cabinClass}
-                          isPreviewSelected={previewSeatId === seat.id}
+                          isSelected={selectedSeatId === seat.id}
                           onClick={() => handleSeatClick(seat)}
                         />
                       );
@@ -144,7 +168,7 @@ export function SeatMap({ flightId, cabinClass, onPreviewSelect }: SeatMapProps)
                           key={seat.id}
                           seat={seat}
                           cabinClass={cabinClass}
-                          isPreviewSelected={previewSeatId === seat.id}
+                          isSelected={selectedSeatId === seat.id}
                           onClick={() => handleSeatClick(seat)}
                         />
                       );
@@ -158,8 +182,7 @@ export function SeatMap({ flightId, cabinClass, onPreviewSelect }: SeatMapProps)
       </div>
 
       <p className="text-center text-xs text-muted">
-        Showing {cabinClass} selectable seats in your class · tap to preview (confirm
-        in Phase 5.3)
+        Tap a seat in {cabinClass} to select · tap again to deselect
       </p>
     </div>
   );
@@ -168,12 +191,12 @@ export function SeatMap({ flightId, cabinClass, onPreviewSelect }: SeatMapProps)
 function SeatButton({
   seat,
   cabinClass,
-  isPreviewSelected,
+  isSelected,
   onClick,
 }: {
   seat: SeatRow;
   cabinClass: CabinClass;
-  isPreviewSelected: boolean;
+  isSelected: boolean;
   onClick: () => void;
 }) {
   const taken = !seat.is_available;
@@ -190,14 +213,14 @@ function SeatButton({
       type="button"
       title={title}
       aria-label={title}
-      aria-pressed={isPreviewSelected}
+      aria-pressed={isSelected}
       disabled={!selectable}
       onClick={onClick}
       className={`mx-auto flex h-11 w-11 items-center justify-center rounded-lg text-xs font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring ${seatButtonClass({
         taken,
         selectable,
         premium,
-        isPreviewSelected,
+        isSelected,
       })}`}
     >
       {seat.seat_number.replace(/^\d+/, "")}
@@ -209,15 +232,15 @@ function seatButtonClass({
   taken,
   selectable,
   premium,
-  isPreviewSelected,
+  isSelected,
 }: {
   taken: boolean;
   selectable: boolean;
   premium: boolean;
-  isPreviewSelected: boolean;
+  isSelected: boolean;
 }): string {
   if (taken) return "cursor-not-allowed bg-slate-500/40 text-slate-500";
-  if (isPreviewSelected) {
+  if (isSelected) {
     return "bg-primary text-primary-foreground ring-2 ring-indigo-300";
   }
   if (!selectable) {
