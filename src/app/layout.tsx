@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { PwaRegister } from "@/components/pwa/PwaRegister";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import "./globals.css";
@@ -19,6 +20,25 @@ export const metadata: Metadata = {
   },
   description:
     "Search and book flights across India. Compare fares, pick your seat, and manage trips with Skyro.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Skyro",
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#4F46E5",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -33,6 +53,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         <AuthProvider>
+          <PwaRegister />
           <Navbar />
           <div id="main-content" className="flex flex-1 flex-col">
             {children}
