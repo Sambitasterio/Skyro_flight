@@ -1,11 +1,11 @@
-# Optional UI screenshots for README
+# Production screenshots (README)
 
-Capture from **production** (Vercel) or local `npm run start`:
+| File | Screen |
+|------|--------|
+| `landing.png` | Home — hero + search |
+| `trending.png` | Trending destinations |
+| `flights.png` | Search results + filters |
+| `seat-map.png` | Seat selection |
+| `passenger.png` | Passenger form + summary |
 
-| File | Page |
-|------|------|
-| `landing.png` | `/` — hero + search |
-| `seat-map.png` | `/flights/[id]/seats` |
-| `confirmation.png` | `/booking/[pnr]` |
-
-Add to root `README.md` when ready.
+Used in root [`README.md`](../../README.md). Captured from **https://skyro-flight.vercel.app**.
