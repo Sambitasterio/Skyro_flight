@@ -62,6 +62,7 @@ Desktop.ini
 # Cursor (local agent state — optional to commit rules/skills separately)
 .cursor/
 AGENTS.md
+CLAUDE.md
 
 # Supabase local CLI (if used later)
 /supabase/.branches
