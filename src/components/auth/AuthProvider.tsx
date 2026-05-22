@@ -4,12 +4,12 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 import { createClient } from "@/lib/supabase/client";
+import { clearClientStoresOnLogout } from "@/lib/store/clear-client-stores";
 import { useUserStore } from "@/store/useUserStore";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const setSession = useUserStore((state) => state.setSession);
-  const resetUser = useUserStore((state) => state.resetUser);
 
   useEffect(() => {
     const supabase = createClient();
@@ -31,21 +31,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      if (!session) {
-        resetUser();
-      }
       if (event === "SIGNED_OUT") {
-        setSession(null);
-        resetUser();
+        clearClientStoresOnLogout();
+        return;
       }
+      setSession(session);
     });
 
     return () => {
       unsubscribeHydration();
       subscription.unsubscribe();
     };
-  }, [pathname, resetUser, setSession]);
+  }, [pathname, setSession]);
 
   return children;
 }

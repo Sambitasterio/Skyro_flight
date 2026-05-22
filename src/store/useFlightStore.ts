@@ -1,14 +1,12 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 import type { ActiveBooking } from "@/types/booking";
 import type {
   BookingStep,
-  CabinClass,
   SearchQuery,
   SelectedFlight,
   SelectedSeat,
-  TripType,
 } from "@/types/flight";
 import type { PassengerFormData } from "@/types/passenger";
 
@@ -47,6 +45,7 @@ interface FlightState {
   setActiveBooking: (booking: ActiveBooking | null) => void;
   setBookingStep: (step: BookingStep) => void;
   setPassengerForm: (form: Partial<PassengerFormData>) => void;
+  /** Clears in-progress booking; keeps `searchQuery` for the next search. */
   resetBooking: () => void;
 }
 
@@ -75,7 +74,8 @@ export const useFlightStore = create<FlightState>()(
         set((state) => ({
           selectedFlight,
           selectedSeat:
-            selectedFlight === null || state.selectedSeat?.flight_id !== selectedFlight?.id
+            selectedFlight === null ||
+            state.selectedSeat?.flight_id !== selectedFlight?.id
               ? null
               : state.selectedSeat,
         })),
@@ -97,6 +97,7 @@ export const useFlightStore = create<FlightState>()(
     }),
     {
       name: "flight-store",
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         searchQuery: state.searchQuery,
         selectedFlight: state.selectedFlight,

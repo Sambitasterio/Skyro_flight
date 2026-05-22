@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/client";
-import { useUserStore } from "@/store/useUserStore";
+import { clearClientStoresOnLogout } from "@/lib/store/clear-client-stores";
 
 interface LogoutButtonProps {
   className?: string;
@@ -11,12 +11,10 @@ interface LogoutButtonProps {
 
 export function LogoutButton({ className = "" }: LogoutButtonProps) {
   const router = useRouter();
-  const resetUser = useUserStore((state) => state.resetUser);
-
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    resetUser();
+    clearClientStoresOnLogout();
     router.refresh();
     router.push("/");
   };

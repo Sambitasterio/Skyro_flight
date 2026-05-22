@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { buildFlightsResultsUrl } from "@/lib/flights/build-results-url";
 import { parseSortTab } from "@/lib/flights/sort-flights";
@@ -217,6 +218,73 @@ export function MobileFilterSheet({
   );
   const activeCount = countActiveFilters(filters);
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const close = () => setOpen(false);
+
+  const sheet =
+    open && mounted
+      ? createPortal(
+          <div className="fixed inset-0 z-[80] flex flex-col justify-end lg:hidden">
+            <button
+              type="button"
+              className="absolute inset-0 bg-black/50"
+              aria-label="Close filters"
+              onClick={close}
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Flight filters"
+              className="relative flex max-h-[min(85dvh,100%)] flex-col rounded-t-2xl border border-border bg-card shadow-2xl"
+            >
+              <header className="shrink-0 border-b border-border px-5 pb-3 pt-4">
+                <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border" />
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-lg font-bold text-foreground">Filters</h2>
+                  <button
+                    type="button"
+                    onClick={close}
+                    className="shrink-0 rounded-lg px-3 py-1.5 text-sm font-semibold text-primary hover:bg-primary/10"
+                  >
+                    Done
+                  </button>
+                </div>
+              </header>
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4">
+                <FlightFilters search={search} facets={facets} embedded />
+              </div>
+              <footer className="shrink-0 border-t border-border p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                <button
+                  type="button"
+                  onClick={close}
+                  className="bg-primary text-primary-foreground w-full rounded-xl py-3 text-sm font-bold"
+                >
+                  Apply filters
+                </button>
+              </footer>
+            </div>
+          </div>,
+          document.body,
+        )
+      : null;
 
   return (
     <>
@@ -234,34 +302,7 @@ export function MobileFilterSheet({
           </span>
         ) : null}
       </button>
-
-      {open ? (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-black/50"
-            aria-hidden
-            onClick={() => setOpen(false)}
-          />
-          <div
-            role="dialog"
-            aria-label="Flight filters"
-            className="fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-2xl border border-border bg-card p-5 shadow-2xl"
-          >
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-foreground">Filters</h2>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="text-sm font-semibold text-primary"
-              >
-                Done
-              </button>
-            </div>
-            <FlightFilters search={search} facets={facets} embedded />
-          </div>
-        </>
-      ) : null}
+      {sheet}
     </>
   );
 }
